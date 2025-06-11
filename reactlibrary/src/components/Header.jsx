@@ -67,7 +67,7 @@ export function Header() {
       />
     );
 
-    if (logueado) {
+    if (!logueado) {
       return (
         <>
           {renderBtn("Home", "/home")}
