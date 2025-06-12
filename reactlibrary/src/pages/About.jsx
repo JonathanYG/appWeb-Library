@@ -16,9 +16,9 @@ const developers = [
   {
     name: "Yonathan Canales Aguilera",
     career: "Ingeniería Civil Informática",
-    city: "Curico, Chile",
+    city: "Curicó, Chile",
     university: "Universidad Católica Del Maule",
-    github: "https://github.com/segundo",
+    github: "https://github.com/Sopapo3k",
     email: "yonathan.canales@alu.ucm.cl",
     image: dev1
   }
