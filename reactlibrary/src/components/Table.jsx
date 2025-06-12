@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MdOutlineToggleOn, MdOutlineToggleOff, MdSearch } from 'react-icons/md';
+import { MdOutlineToggleOn, MdOutlineToggleOff, MdSearch, MdBookOnline, MdOutlineGavel } from 'react-icons/md';
 import ModalConfirm from '../components/Modalconfirm.jsx';
 import { StylesTable } from '../styles/StylesTable.jsx';
 
@@ -9,6 +9,8 @@ export default function Table({
     data,
     onEdit,
     onToggleStatus,
+    onViewReservations,
+    onViewFines,
     rowsPerPage = 5
 }) {
     const styles = StylesTable();
@@ -32,10 +34,12 @@ export default function Table({
         setShowConfirmModal(false);
     };
 
+    const hasActions = onEdit || onToggleStatus || onViewReservations || onViewFines;
+
     return (
         <div style={styles.container}>
             <div style={styles.header}>{title}</div>
-
+    
             <div style={styles.wrapper}>
                 <table style={styles.table}>
                     <thead>
@@ -43,7 +47,7 @@ export default function Table({
                         {columns.filter(col => !col.hidden).map(col => (
                             <th key={col.accessor}>{col.label}</th>
                         ))}
-                        {(onEdit || onToggleStatus) && <th>Acciones</th>}
+                        {hasActions && <th>Acciones</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -53,38 +57,55 @@ export default function Table({
                             <td
                                 key={col.accessor}
                                 style={{
-                                ...(col.accessor === 'estado' && styles.estadoColor(item.estado)),
+                                ...(col.accessor === 'state' && styles.estadoColor(item.state)),
                                 ...((col.accessor === 'rut' || col.accessor.toLowerCase().includes('fecha')) && { whiteSpace: 'nowrap' }),
                                 }}
                             >
                                 {item[col.accessor]}
                             </td>
                             ))}
-
-                            {(onEdit || onToggleStatus) && (
+            
                             <td style={styles.nowrapCell}>
-                                {onEdit && (
+                            {onEdit && (
                                 <MdSearch
                                     title="Ver detalles"
                                     onClick={() => onEdit(item)}
                                     style={styles.iconAction}
                                     size={20}
                                 />
-                                )}
-
-                                {onToggleStatus && (
-                                item.estado === 'Activo' ? (
-                                    <MdOutlineToggleOn
-                                    title="Desactivar"
+                            )}
+            
+                            {onViewReservations && (
+                                <MdBookOnline
+                                    title="Ver reservas"
+                                    onClick={() => onViewReservations(item)}
+                                    style={{ ...styles.iconAction, color: '#3498db' }}
+                                    size={20}
+                                />
+                            )}
+            
+                            {onViewFines && (
+                                <MdOutlineGavel
+                                    title="Ver multas"
+                                    onClick={() => onViewFines(item)}
+                                    style={{ ...styles.iconAction, color: '#e67e22' }}
+                                    size={20}
+                                />
+                            )}
+            
+                            {onToggleStatus && (
+                                item.state === 'Activo' ? (
+                                <MdOutlineToggleOn
+                                    title="Bloquear"
                                     onClick={() => {
                                         setSelectedItem(item);
                                         setShowConfirmModal(true);
                                     }}
                                     style={{ ...styles.toggleEnabled, color: 'green' }}
                                     size={24}
-                                    />
+                                />
                                 ) : (
-                                    <MdOutlineToggleOff
+                                <MdOutlineToggleOff
                                     title="Activar"
                                     onClick={() => {
                                         setSelectedItem(item);
@@ -92,17 +113,16 @@ export default function Table({
                                     }}
                                     style={{ ...styles.toggleEnabled, color: 'gray' }}
                                     size={24}
-                                    />
+                                />
                                 )
-                                )}
-                            </td>
                             )}
+                            </td>
                         </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-
+        
             <div style={styles.pagination}>
                 <button
                     style={styles.paginationButtonDefault}
@@ -128,10 +148,10 @@ export default function Table({
                 Next &gt;&gt;
                 </button>
             </div>
-
+        
             <ModalConfirm
                 isOpen={showConfirmModal}
-                message={`¿Estás seguro de que deseas cambiar el estado del lector "${selectedItem?.nombre}"?`}
+                message={`¿Estás seguro de que deseas cambiar el estado del lector "${selectedItem?.nombre || selectedItem?.email}"?`}
                 onCancel={() => setShowConfirmModal(false)}
                 onConfirm={handleConfirmToggle}
             />
