@@ -83,7 +83,7 @@ export function Header() {
           {renderBtn("Nuevo Libro", "/nuevo-libro")}
           {renderBtn("Préstamo", "/prestamo")}
           {renderBtn("Devolución", "/devolucion")}
-          {renderBtn("Lectores", "/lectores")}
+          {renderBtn("Lectores", "/readers")}
           {renderBtn("Salir", "", handleLogout)}
         </>
       );
