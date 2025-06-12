@@ -3,45 +3,42 @@ import { CustomButton } from '../components/CustomButton.jsx';
 import { FaSearch } from "react-icons/fa";
 import { AiOutlineClear } from "react-icons/ai";
 
-export function SearchBar({ styles, options, onSearch }) {
+export function SearchBar({ styles, onSearch, showSelect = true, placeholder = "Buscar...", defaultOption = "", options = [] }) {
   // Estado local para inputs controlados
   const [inputText, setInputText] = useState("");
-  const [selectedOption, setSelectedOption] = useState(options[0] || "");
+  const [selectedOption, setSelectedOption] = useState(defaultOption);
 
   // Cuando se pulsa el botón Buscar
-  function handleClick() {
-    onSearch(inputText, selectedOption);
-  }
+  const handleClick = () => onSearch(inputText, selectedOption);
 
   // Cuando se pulsa el botón Limpiar
-  function handleClearClick() {
+  const handleClearClick = () => {
     setInputText("");
-    setSelectedOption(options[0] || "");
-    // Avisar al padre para limpiar filtros
-    onSearch("", options[0] || "");
-  }
+    setSelectedOption(defaultOption);
+    onSearch("", defaultOption);
+  };
 
   return (
     <div style={styles.barraBusquedaEstilo}>
       <input
         type="text"
-        placeholder="Buscar libros por título o autor..."
+        placeholder={placeholder}
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
         style={styles.inputBusquedaEstilo}
       />
 
-      <select
-        value={selectedOption}
-        onChange={(e) => setSelectedOption(e.target.value)}
-        style={styles.selectTipoEstilo}
-      >
-        {options.map((opcion, index) => (
-          <option key={index} value={opcion}>
-            {opcion}
-          </option>
-        ))}
-      </select>
+      {showSelect && (
+        <select
+          value={selectedOption}
+          onChange={(e) => setSelectedOption(e.target.value)}
+          style={styles.selectTipoEstilo}
+        >
+          {options.map((opcion, index) => (
+            <option key={index} value={opcion}>{opcion}</option>
+          ))}
+        </select>
+      )}
 
       <div style={styles.grupoBotones}>
         <CustomButton
@@ -51,7 +48,6 @@ export function SearchBar({ styles, options, onSearch }) {
           style={styles.botonBusquedaEstilo}
           hoverStyle={styles.botonBusquedaHoverEstilo}
         />
-
         <CustomButton
           text="Limpiar"
           icon={<AiOutlineClear />}
