@@ -74,8 +74,11 @@ export function Home() {
     <div style={styles.contenedorEstilo}>
       <SearchBar
         styles={styles}
-        options={categorias}
         onSearch={handleSearch}
+        options={categorias}
+        placeholder="Buscar libros por título o autor..."
+        defaultOption="Todos los tipos"
+        showSelect={true}
       />
 
       <h2 style={styles.tituloColeccionEstilo}>Explora Nuestra Colección</h2>
