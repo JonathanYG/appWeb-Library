@@ -114,7 +114,7 @@ export function Header() {
       return (
         <>
           {renderBtn("Home", "/home")}
-          {renderBtn("Nuevo Libro", "/nuevo-libro")}
+          {renderBtn("Nuevo Libro", "/books")}
           {renderBtn("Préstamo", "", () => {
             setSelectedUser(null);
             setSelectedBook(null);
@@ -165,13 +165,13 @@ export function Header() {
   const onSubmitCreateLoan = () => {
     // Validación de campos
     if (!selectedBook && !selectedUser) {
-      return toast.error("Selecciona usuario y libro.");
+      return toast.warn("Selecciona usuario y libro.");
     }
     if (!selectedBook) {
-      return toast.error("Selecciona un libro.");
+      return toast.warn("Selecciona un libro.");
     }
     if (!selectedUser) {
-      return toast.error("Selecciona un usuario.");
+      return toast.warn("Selecciona un usuario.");
     }
   
     const today = new Date().toISOString().split("T")[0];
@@ -237,6 +237,7 @@ export function Header() {
         data={transformMultas}
         title="Mis Multas"
       />
+
       <ModalForm
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

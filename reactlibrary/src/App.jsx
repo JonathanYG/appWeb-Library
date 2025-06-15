@@ -19,6 +19,7 @@ import { Login } from './pages/Login.jsx';
 import { Register } from './pages/Register.jsx';
 import { Readers } from './pages/Readers.jsx';
 import { Returns } from './pages/Returns.jsx';
+import { Books } from './pages/Books.jsx';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/readers" element={<Readers />} />
             <Route path="/returns" element={<Returns />} />
+            <Route path="/books" element={<Books />} />
             {/* <Route path="*" element={<NotFound />} /> */}
             {/* Rutas protegidas (solo usuarios logueados) */}
 

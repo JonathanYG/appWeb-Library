@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import Select from "react-select";
 import { StylesModal } from "../styles/StylesModal.jsx";
@@ -17,6 +17,13 @@ export default function ModalForm({
 }) {
   const styles = StylesModal();
   const [showPassword, setShowPassword] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setImagePreview(null); // limpia preview al abrir modal
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -33,13 +40,13 @@ export default function ModalForm({
     >
       <div style={styles.modalStyles} onClick={(e) => e.stopPropagation()}>
         <h2>{title}</h2>
-        <form onSubmit={(e) => e.preventDefault()}>
           <div style={styles.modalFormUserColumns}>
             {/* Columna izquierda */}
             <div style={styles.modalFormUserColumn}>
               {inputs.slice(0, Math.ceil(inputs.length / 2)).map((input, index) => (
                 <div key={index} style={styles.modalFormUserField}>
                   <label style={styles.modalFormUserLabel}>{input.label}</label>
+
                   {input.type === "password" && showPasswordToggle ? (
                     <div style={styles.modalPasswordWrapper}>
                       <input
@@ -61,6 +68,32 @@ export default function ModalForm({
                         {showPassword ? "🔓" : "🔒"}
                       </button>
                     </div>
+                  ) : input.type === "file" ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        name={input.name}
+                        style={styles.inputStyle(!input.disabled)}
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const previewURL = URL.createObjectURL(file);
+                            setImagePreview(previewURL); // para mostrar la vista previa
+                            if (input.onChange) {
+                              input.onChange({ target: { value: file } }); // envía el File directamente
+                            }
+                          }
+                        }}
+                      />
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="Vista previa"
+                          style={styles.modalImagePreview}
+                        />
+                      )}
+                    </>
                   ) : (
                     <input
                       type={input.type}
@@ -125,14 +158,42 @@ export default function ModalForm({
               {inputs.slice(Math.ceil(inputs.length / 2)).map((input, index) => (
                 <div key={index} style={styles.modalFormUserField}>
                   <label style={styles.modalFormUserLabel}>{input.label}</label>
-                  <input
-                    type={input.type}
-                    name={input.name}
-                    style={styles.inputStyle(!input.disabled)}
-                    value={input.value}
-                    onChange={input.onChange}
-                    disabled={input.disabled}
-                  />
+                  {input.type === "file" ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        name={input.name}
+                        style={styles.inputStyle(!input.disabled)}
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const previewURL = URL.createObjectURL(file);
+                            setImagePreview(previewURL);
+                            if (input.onChange) {
+                              input.onChange({ target: { value: file } });
+                            }
+                          }
+                        }}
+                      />
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="Vista previa"
+                          style={styles.modalImagePreview}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <input
+                      type={input.type}
+                      name={input.name}
+                      style={styles.inputStyle(!input.disabled)}
+                      value={input.value}
+                      onChange={input.onChange}
+                      disabled={input.disabled}
+                    />
+                  )}
                 </div>
               ))}
 
@@ -203,7 +264,6 @@ export default function ModalForm({
               />
             )}
           </div>
-        </form>
       </div>
     </div>,
     document.body

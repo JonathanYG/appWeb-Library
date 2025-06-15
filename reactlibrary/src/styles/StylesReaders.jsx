@@ -73,5 +73,21 @@ export function StylesReaders() {
         tableWrapper: {
             marginTop: '10px',
         },
+        buttonAddStyle: {
+            backgroundColor: '#005227',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '10px 16px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: 'bold',
+            fontSize: '14px',
+        },
+        buttonAddStyleAlt: {
+            backgroundColor: '#003f1e',
+        },
     };
 }
