@@ -41,9 +41,13 @@ export function Readers() {
         { accessor: 'state', label: 'Estado' },
     ];
     const reservationColumns = [
-        { accessor: 'book', label: 'Libro' },
-        { accessor: 'date', label: 'Fecha' },
-        { accessor: 'state', label: 'Estado' },
+        { accessor: "image64", label: "Imagen" },
+        { accessor: "title", label: "Título" },
+        { accessor: "author", label: "Autor" },
+        { accessor: "type", label: "Tipo" },
+        { accessor: "state", label: "Estado" },
+        { accessor: "dateBooking", label: "Fecha Préstamo" },
+        { accessor: "dateReturn", label: "Fecha Devolución" },
     ];  
     const finesColumns = [
         { accessor: 'description', label: 'Descripción' },
@@ -129,13 +133,23 @@ export function Readers() {
     // Simula obtener reservas por email
     const handleViewReservations = (reader) => {
         const fakeReservations = [
-            { book: '1984', date: '2024-05-01', state: true },
-            { book: 'El Principito', date: '2024-03-10', state: true },
+            {
+                image64: "", title: "Cien Años de Soledad", author: "G. G. Márquez",
+                type: "Novela", state: true, dateBooking: "2025-05-10", dateReturn: "2025-06-10"
+            },
+            {
+                image64: "", title: "El Principito", author: "Antoine de Saint-Exupéry",
+                type: "Fábula", state: false, dateBooking: "2025-04-15", dateReturn: "2025-05-15"
+            },
+            {
+                image64: "", title: "1984", author: "George Orwell",
+                type: "Distopía", state: true, dateBooking: "2025-03-20", dateReturn: "2025-04-20"
+            },
         ];
 
         const formattedFines = fakeReservations.map(f => ({
             ...f,
-            state: f.state ? 'Activa' : 'Finalizada',
+            state: f.state ? 'Prestado' : 'Libre',
         }));
 
         setModalTitle(`Reservas de ${reader.email}`);
