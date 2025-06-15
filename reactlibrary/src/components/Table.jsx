@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MdOutlineToggleOn, MdOutlineToggleOff, MdSearch, MdBookOnline, MdOutlineGavel } from 'react-icons/md';
+import { MdAssignmentReturn } from 'react-icons/md';
 import ModalConfirm from '../components/Modalconfirm.jsx';
 import { StylesTable } from '../styles/StylesTable.jsx';
 
@@ -11,6 +12,7 @@ export default function Table({
     onToggleStatus,
     onViewReservations,
     onViewFines,
+    onReturn,
     rowsPerPage = 5
 }) {
     const styles = StylesTable();
@@ -34,7 +36,7 @@ export default function Table({
         setShowConfirmModal(false);
     };
 
-    const hasActions = onEdit || onToggleStatus || onViewReservations || onViewFines;
+    const hasActions = onEdit || onToggleStatus || onViewReservations || onViewFines || onReturn;
 
     return (
         <div style={styles.container}>
@@ -115,6 +117,14 @@ export default function Table({
                                     size={24}
                                 />
                                 )
+                            )}
+                            {onReturn && (
+                                <MdAssignmentReturn
+                                    title="Registrar devolución"
+                                    onClick={() => onReturn(item)}
+                                    style={{ ...styles.iconAction, color: '#27ae60' }}
+                                    size={20}
+                                />
                             )}
                             </td>
                         </tr>
