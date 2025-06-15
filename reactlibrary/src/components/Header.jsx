@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { StylesHeader } from "../styles/StylesHeader.jsx";
 import { CustomButton } from '../components/CustomButton.jsx';
 import ModalTable from '../components/ModalTable.jsx';
+import ModalForm from "../components/ModalForm.jsx";
+import { toast, Bounce } from "react-toastify";
 
 export function Header() {
   const navigate = useNavigate();
@@ -15,6 +17,38 @@ export function Header() {
   const [modalMultasOpen, setModalMultasOpen] = useState(false);
   const [prestamosData, setPrestamosData] = useState([]);
   const [multasData, setMultasData] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const fakeBooks = [
+    { value: 'copy001', label: '1984' },
+    { value: 'copy002', label: 'Fahrenheit 451' },
+    { value: 'copy003', label: 'El Principito' },
+  ];
+  const fakeUsers = [
+    { value: 'john@bookhub.com', label: 'john@bookhub.com' },
+    { value: 'jane@bookhub.com', label: 'jane@bookhub.com' },
+  ];
+  const today = new Date().toISOString().split("T")[0];
+  const inputsCreateLoan = [
+    {
+      label: "Fecha Préstamo",
+      name: "dateBooking",
+      type: "text",
+      value: today,
+      onChange: () => {}, // no editable
+      disabled: true,
+    },
+    {
+      label: "Estado",
+      name: "state",
+      type: "text",
+      value: "Prestado",
+      onChange: () => {},
+      disabled: true,
+    },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolling(window.scrollY > 0);
@@ -81,8 +115,12 @@ export function Header() {
         <>
           {renderBtn("Home", "/home")}
           {renderBtn("Nuevo Libro", "/nuevo-libro")}
-          {renderBtn("Préstamo", "/prestamo")}
-          {renderBtn("Devolución", "/devolucion")}
+          {renderBtn("Préstamo", "", () => {
+            setSelectedUser(null);
+            setSelectedBook(null);
+            setShowCreateModal(true);
+          })}
+          {renderBtn("Devolución", "/returns")}
           {renderBtn("Lectores", "/readers")}
           {renderBtn("Salir", "", handleLogout)}
         </>
@@ -116,13 +154,59 @@ export function Header() {
 
   const transformPrestamos = prestamosData.map(item => ({
     ...item,
-    state: item.state ? "Activo" : "Inactivo",
+    state: item.state ? "Prestado" : "Libre",
   }));
 
   const transformMultas = multasData.map(item => ({
     ...item,
     state: item.state ? "Activo" : "Inactivo",
   }));
+
+  const onSubmitCreateLoan = () => {
+    // Validación de campos
+    if (!selectedBook && !selectedUser) {
+      return toast.error("Selecciona usuario y libro.");
+    }
+    if (!selectedBook) {
+      return toast.error("Selecciona un libro.");
+    }
+    if (!selectedUser) {
+      return toast.error("Selecciona un usuario.");
+    }
+  
+    const today = new Date().toISOString().split("T")[0];
+  
+    const newLoan = {
+      copybookFK: selectedBook.value,
+      userFK: selectedUser.value,
+      dateBooking: today,
+      dateReturn: "",
+      state: 1,
+    };
+  
+    console.log("Enviar a backend:", newLoan);
+    toast.success("Préstamo registrado.");
+    setShowCreateModal(false);
+  };
+  
+  const selectsCreateLoan = [
+    {
+      label: "Usuario",
+      name: "user",
+      value: selectedUser?.value || '',
+      onChange: (e) =>
+        setSelectedUser(fakeUsers.find((u) => u.value === e.target.value)),
+      options: fakeUsers,
+    },
+    {
+      label: "Libro",
+      name: "book",
+      value: selectedBook?.value || '',
+      onChange: (e) =>
+        setSelectedBook(fakeBooks.find((b) => b.value === e.target.value)),
+      options: fakeBooks,
+    },
+  ];
 
   return (
     <header style={styles.barraNavegacion}>
@@ -153,7 +237,14 @@ export function Header() {
         data={transformMultas}
         title="Mis Multas"
       />
-
+      <ModalForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Nuevo Préstamo"
+        onSubmit={onSubmitCreateLoan}
+        selects={selectsCreateLoan}
+        inputs={inputsCreateLoan}
+      />
     </header>
   );
 }
