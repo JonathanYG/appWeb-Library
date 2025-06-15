@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import Select from "react-select";
 import { StylesModal } from "../styles/StylesModal.jsx";
 import { CustomButton } from "../components/CustomButton.jsx";
 import { FaArrowLeft, FaRegSave } from "react-icons/fa";
@@ -12,12 +13,16 @@ export default function ModalForm({
   selects = [],
   showPasswordToggle = false,
   onSubmit,
-  submitText = "Guardar"
+  submitText = "Guardar",
 }) {
   const styles = StylesModal();
   const [showPassword, setShowPassword] = useState(false);
 
   if (!isOpen) return null;
+
+  const half = Math.ceil(selects.length / 2);
+  const leftSelects = selects.slice(0, half);
+  const rightSelects = selects.slice(half);
 
   return ReactDOM.createPortal(
     <div
@@ -28,8 +33,9 @@ export default function ModalForm({
     >
       <div style={styles.modalStyles} onClick={(e) => e.stopPropagation()}>
         <h2>{title}</h2>
-        <form>
+        <form onSubmit={(e) => e.preventDefault()}>
           <div style={styles.modalFormUserColumns}>
+            {/* Columna izquierda */}
             <div style={styles.modalFormUserColumn}>
               {inputs.slice(0, Math.ceil(inputs.length / 2)).map((input, index) => (
                 <div key={index} style={styles.modalFormUserField}>
@@ -39,7 +45,10 @@ export default function ModalForm({
                       <input
                         type={showPassword ? "text" : "password"}
                         name={input.name}
-                        style={{ ...styles.inputStyle(!input.disabled), ...styles.modalPasswordInput }}
+                        style={{
+                          ...styles.inputStyle(!input.disabled),
+                          ...styles.modalPasswordInput,
+                        }}
                         value={input.value}
                         onChange={input.onChange}
                         disabled={input.disabled}
@@ -64,8 +73,54 @@ export default function ModalForm({
                   )}
                 </div>
               ))}
+
+              {leftSelects.map((select, index) => (
+                <div key={index} style={styles.modalFormUserField}>
+                  <label style={styles.modalFormUserLabel}>{select.label}</label>
+                  <Select
+                    value={select.options.find((opt) => opt.value === select.value)}
+                    onChange={(opt) => select.onChange({ target: { value: opt.value } })}
+                    options={select.options}
+                    isDisabled={select.disabled}
+                    styles={{
+                      control: (base, ) => ({
+                        ...base,
+                        height: "36px",
+                        minHeight: "36px",
+                        width: "90%",
+                        borderRadius: "4px",
+                        border: "1px solid #ccc",
+                        backgroundColor: select.disabled ? "#f0f0f0" : "#fff",
+                        color: select.disabled ? "#666" : "#000",
+                        boxShadow: "none",
+                        "&:hover": {
+                          borderColor: "#aaa",
+                        },
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        padding: "0 8px",
+                      }),
+                      indicatorsContainer: (base) => ({
+                        ...base,
+                        height: "36px",
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        margin: "0px",
+                        padding: "0px",
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        zIndex: 3000,
+                      }),
+                    }}
+                  />
+                </div>
+              ))}
             </div>
 
+            {/* Columna derecha */}
             <div style={styles.modalFormUserColumn}>
               {inputs.slice(Math.ceil(inputs.length / 2)).map((input, index) => (
                 <div key={index} style={styles.modalFormUserField}>
@@ -81,22 +136,48 @@ export default function ModalForm({
                 </div>
               ))}
 
-              {selects.map((select, index) => (
+              {rightSelects.map((select, index) => (
                 <div key={index} style={styles.modalFormUserField}>
                   <label style={styles.modalFormUserLabel}>{select.label}</label>
-                  <select
-                    name={select.name}
-                    value={select.value}
-                    onChange={select.onChange}
-                    disabled={select.disabled}
-                    style={styles.inputStyle(!select.disabled)}
-                  >
-                    {select.options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    value={select.options.find((opt) => opt.value === select.value)}
+                    onChange={(opt) => select.onChange({ target: { value: opt.value } })}
+                    options={select.options}
+                    isDisabled={select.disabled}
+                    styles={{
+                      control: (base, ) => ({
+                        ...base,
+                        height: "36px",
+                        minHeight: "36px",
+                        borderRadius: "4px",
+                        width: "90%",
+                        border: "1px solid #ccc",
+                        backgroundColor: select.disabled ? "#f0f0f0" : "#fff",
+                        color: select.disabled ? "#666" : "#000",
+                        boxShadow: "none",
+                        "&:hover": {
+                          borderColor: "#aaa",
+                        },
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        padding: "0 8px",
+                      }),
+                      indicatorsContainer: (base) => ({
+                        ...base,
+                        height: "36px",
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        margin: "0px",
+                        padding: "0px",
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        zIndex: 3000,
+                      }),
+                    }}
+                  />
                 </div>
               ))}
             </div>
@@ -104,23 +185,23 @@ export default function ModalForm({
 
           <div style={styles.modalUserFooter}>
             <CustomButton
-                text="Volver"
-                onClick={onClose}
-                icon={<FaArrowLeft />}
-                style={styles.buttonSecondaryStyle}
-                hoverStyle={styles.buttonSecondaryHoverStyle}
+              text="Volver"
+              onClick={onClose}
+              icon={<FaArrowLeft />}
+              style={styles.buttonSecondaryStyle}
+              hoverStyle={styles.buttonSecondaryHoverStyle}
             />
-                      
-            {onSubmit && (
-                <CustomButton
-                    text={submitText}
-                    onClick={onSubmit}
-                    icon={<FaRegSave />}
-                    style={styles.buttonPrimaryStyle}
-                    hoverStyle={styles.buttonPrimaryHoverStyle}
-                />
-            )}
 
+            {onSubmit && (
+              <CustomButton
+                text={submitText}
+                onClick={onSubmit}
+                icon={<FaRegSave />}
+                style={styles.buttonPrimaryStyle}
+                hoverStyle={styles.buttonPrimaryHoverStyle}
+                type="button"
+              />
+            )}
           </div>
         </form>
       </div>
