@@ -26,6 +26,8 @@ export function StylesReaders() {
             borderRadius: '4px',
             border: '1px solid #ccc',
             flex: 1,
+            backgroundColor: '#f9f9f9',
+            color: '#2C3E50',
         },
         selectTipoEstilo: {
             padding: '8px',

@@ -28,12 +28,16 @@ export function StylesHome() {
       border: '1px solid #ccc',
       width: '300px',
       fontSize: '14px',
+      backgroundColor: '#f9f9f9',
+      color: '#2C3E50',
     },
     selectTipoEstilo: {
       padding: '10px',
       borderRadius: '4px',
       border: '1px solid #ccc',
       fontSize: '14px',
+      backgroundColor: '#f9f9f9',
+      color: '#2C3E50',
     },
     botonBusquedaEstilo: {
       padding: '10px 20px',
