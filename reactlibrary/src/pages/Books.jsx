@@ -59,6 +59,12 @@ export function Books() {
         formData.append("type", type);
         formData.append("image64", image64);
 
+        // Mostrar los datos dentro del FormData
+        console.log("Contenido de formData:");
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
+
         // Simulación de éxito
         toast.success("Libro creado exitosamente.", { theme: "dark", transition: Bounce });
         setShowBookModal(false);
@@ -67,20 +73,20 @@ export function Books() {
 
     const handleCreateCopy = () => {
         if (!selectedBookId) {
-          toast.error("Error al identificar el libro.", { theme: "dark", transition: Bounce });
-          return;
+            toast.error("Error al identificar el libro.", { theme: "dark", transition: Bounce });
+            return;
         }
       
         const copyPayload = {
-          bookFK: selectedBookId,
-          state: true, // o 1
+            bookFK: selectedBookId,
+            state: true,
         };
       
         console.log("Datos a enviar:", copyPayload);
       
         toast.success("Copia registrada exitosamente.", { theme: "dark", transition: Bounce });
         setShowCopyModal(false);
-      };
+    };
       
 
     const bookColumns = [
@@ -127,6 +133,7 @@ export function Books() {
                 onClose={() => setShowBookModal(false)}
                 onSubmit={handleCreateBook}
                 title="Crear Libro"
+                confirmText="¿Estás seguro de que deseas crear este nuevo libro?"
                 inputs={[
                     {
                         label: "Autor",
@@ -166,21 +173,22 @@ export function Books() {
                 onClose={() => setShowCopyModal(false)}
                 onSubmit={handleCreateCopy}
                 title={`Crear Copia de: ${selectedBookTitle}`}
+                confirmText="¿Estás seguro de que deseas crear una copia de este libro?"
                 inputs={[
-                {
-                    label: "Título",
-                    name: "book_title",
-                    type: "text",
-                    value: selectedBookTitle,
-                    disabled: true,
-                },
-                {
-                    label: "Estado",
-                    name: "state",
-                    type: "text",
-                    value: "Disponible",
-                    disabled: true,
-                },
+                    {
+                        label: "Título",
+                        name: "book_title",
+                        type: "text",
+                        value: selectedBookTitle,
+                        disabled: true,
+                    },
+                    {
+                        label: "Estado",
+                        name: "state",
+                        type: "text",
+                        value: "Disponible",
+                        disabled: true,
+                    },
                 ]}
             />
         </div>

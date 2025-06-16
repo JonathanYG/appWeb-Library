@@ -52,6 +52,8 @@ export function Login() {
       // localStorage.setItem('token', res.data.token);
       // localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
 
+      console.log('Inicio de sesión exitoso:', { email, contrasena });
+
       toast.success('Inicio de sesión exitoso', {
         theme: "dark",
         transition: Bounce,
@@ -101,7 +103,6 @@ export function Login() {
         <p style={styles.parrafoEstilo}>
           Por favor, ingresa tus credenciales.
         </p>
-        <form>
           <label style={styles.labelEstilo}>Correo electrónico</label>
           <div style={styles.inputContenedor}>
             <input
@@ -113,7 +114,6 @@ export function Login() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-
           <label style={styles.labelEstilo}>Contraseña</label>
           <div style={styles.inputContenedor}>
             <input
@@ -132,7 +132,6 @@ export function Login() {
               {mostrarContrasena ? "🔓" : "🔒"}
             </button>
           </div>
-
           <div style={styles.contenedorBotonLogin}>
             <CustomButton
                 text="Iniciar Sesión"
@@ -141,8 +140,6 @@ export function Login() {
                 hoverStyle={styles.botonLoginHover}
             />
           </div>
-        </form>
-
         <div style={styles.registroTexto}>
             ¿No tienes cuenta? <span style={styles.registroEnlace} onClick={() => navigate('/register')}>Registrarse</span>
         </div>

@@ -29,8 +29,8 @@ export function Register() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
-        ...prev,
-        [name]: value
+            ...prev,
+            [name]: value
         }));
     };
 
@@ -45,6 +45,7 @@ export function Register() {
 
         try {
             // await registerRequest(formData);
+            console.log('Registro exitoso:', formData);
             toast.success("Registro exitoso.", { theme: 'dark', transition: Bounce });
             navigate('/login');
         } catch (error) {
@@ -57,7 +58,6 @@ export function Register() {
         <div style={styles.container}>
             <div style={styles.card}>
                 <h2 style={styles.title}>Crea tu cuenta en BookHub</h2>
-                <form>
                     <div style={styles.columns}>
                         <div style={styles.column}>
                             <label style={styles.label}>Correo Electrónico</label>
@@ -147,8 +147,6 @@ export function Register() {
                             hoverStyle={styles.buttonHover}
                         />
                     </div>
-                </form>
-        
                 <div style={styles.loginRedirect}>
                     ¿Ya tienes cuenta?
                     <span onClick={() => navigate('/login')} style={styles.link}> Inicia sesión</span>

@@ -20,8 +20,8 @@ export function Readers() {
     // Simulación de carga inicial de lectores
     useEffect(() => {
         const sampleData = [
-            { email: 'jane@bookhub.com', lastName: 'Doe', Name: 'Jane', password: '••••••', state: true },
-            { email: 'john@bookhub.com', lastName: 'Smith', Name: 'John', password: '••••••', state: false },
+            { id: 1, email: 'jane@bookhub.com', lastName: 'Doe', Name: 'Jane', password: '••••••', state: true },
+            { id: 2, email: 'john@bookhub.com', lastName: 'Smith', Name: 'John', password: '••••••', state: false },
         ];
         setAllReaders(sampleData);
         setFilteredReaders(sampleData);
@@ -72,7 +72,6 @@ export function Readers() {
             ],
         },
     ] : [];
-      
     const formattedReaders = filteredReaders.map(r => ({
         ...r,
         state: r.state ? 'Activo' : 'Boqueado',
@@ -183,45 +182,45 @@ export function Readers() {
         <div style={styles.container}>
             <h1 style={styles.title}>Gestión de Lectores</h1>
 
-        <SearchBar
-            styles={styles}
-            onSearch={handleSearch}
-            showSelect={false}
-            placeholder="Buscar por email..."
-        />
-
-        <div style={styles.tableWrapper}>
-            <Table
-                title="Lista de Lectores"
-                columns={columns}
-                data={formattedReaders}
-                rowsPerPage={5}
-                onEdit={handleEditReader}
-                onToggleStatus={handleToggleStatus}
-                onViewReservations={handleViewReservations}
-                onViewFines={handleViewFines}
+            <SearchBar
+                styles={styles}
+                onSearch={handleSearch}
+                showSelect={false}
+                placeholder="Buscar por email..."
             />
-        </div>
+
+            <div style={styles.tableWrapper}>
+                <Table
+                    title="Lista de Lectores"
+                    columns={columns}
+                    data={formattedReaders}
+                    rowsPerPage={5}
+                    onEdit={handleEditReader}
+                    onToggleStatus={handleToggleStatus}
+                    onViewReservations={handleViewReservations}
+                    onViewFines={handleViewFines}
+                />
+            </div>
             
-        <ModalTable
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-            title={modalTitle}
-            data={modalData}
-            columns={modalTitle.includes('Multas') ? finesColumns : reservationColumns}
-        />
+            <ModalTable
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                title={modalTitle}
+                data={modalData}
+                columns={modalTitle.includes('Multas') ? finesColumns : reservationColumns}
+            />
         
-        <ModalForm
-            isOpen={showFormModal}
-            onClose={() => setShowFormModal(false)}
-            title={`Detalle de ${selectedReader?.email}`}
-            inputs={formInputs}
-            selects={formSelects}
-            showPasswordToggle={true}
-            submitText="Guardar"
-            // onSubmit={handleSubmitEdit}
-        /> 
+            <ModalForm
+                isOpen={showFormModal}
+                onClose={() => setShowFormModal(false)}
+                title={`Detalle de ${selectedReader?.email}`}
+                inputs={formInputs}
+                selects={formSelects}
+                showPasswordToggle={true}
+                submitText="Guardar"
+                // onSubmit={handleSubmitEdit}
+            /> 
         
-    </div>
-  );
+        </div>
+    );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MdOutlineToggleOn, MdOutlineToggleOff, MdSearch, MdBookOnline, MdOutlineGavel } from 'react-icons/md';
 import { MdAssignmentReturn } from 'react-icons/md';
-import ModalConfirm from '../components/Modalconfirm.jsx';
+import ModalConfirm from '../components/ModalConfirm.jsx';
 import { StylesTable } from '../styles/StylesTable.jsx';
 
 export default function Table({
@@ -41,98 +41,92 @@ export default function Table({
     return (
         <div style={styles.container}>
             <div style={styles.header}>{title}</div>
-    
             <div style={styles.wrapper}>
                 <table style={styles.table}>
                     <thead>
                         <tr style={styles.theadRow}>
-                        {columns.filter(col => !col.hidden).map(col => (
-                            <th key={col.accessor}>{col.label}</th>
-                        ))}
-                        {hasActions && <th>Acciones</th>}
+                            {columns.filter(col => !col.hidden).map(col => (
+                                <th key={col.accessor}>{col.label}</th>
+                            ))}
+                            {hasActions && <th>Acciones</th>}
                         </tr>
                     </thead>
                     <tbody>
                         {paginatedData.map((item, index) => (
-                        <tr key={index} style={styles.tbodyRow}>
-                            {columns.filter(col => !col.hidden).map(col => (
-                            <td
-                                key={col.accessor}
-                                style={{
-                                ...(col.accessor === 'state' && styles.estadoColor(item.state)),
-                                ...((col.accessor === 'rut' || col.accessor.toLowerCase().includes('fecha')) && { whiteSpace: 'nowrap' }),
-                                }}
-                            >
-                                {item[col.accessor]}
-                            </td>
-                            ))}
-            
-                            <td style={styles.nowrapCell}>
-                            {onEdit && (
-                                <MdSearch
-                                    title="Ver detalles"
-                                    onClick={() => onEdit(item)}
-                                    style={styles.iconAction}
-                                    size={20}
-                                />
-                            )}
-            
-                            {onViewReservations && (
-                                <MdBookOnline
-                                    title="Ver reservas"
-                                    onClick={() => onViewReservations(item)}
-                                    style={{ ...styles.iconAction, color: '#3498db' }}
-                                    size={20}
-                                />
-                            )}
-            
-                            {onViewFines && (
-                                <MdOutlineGavel
-                                    title="Ver multas"
-                                    onClick={() => onViewFines(item)}
-                                    style={{ ...styles.iconAction, color: '#e67e22' }}
-                                    size={20}
-                                />
-                            )}
-            
-                            {onToggleStatus && (
-                                item.state === 'Activo' ? (
-                                <MdOutlineToggleOn
-                                    title="Bloquear"
-                                    onClick={() => {
-                                        setSelectedItem(item);
-                                        setShowConfirmModal(true);
-                                    }}
-                                    style={{ ...styles.toggleEnabled, color: 'green' }}
-                                    size={24}
-                                />
-                                ) : (
-                                <MdOutlineToggleOff
-                                    title="Activar"
-                                    onClick={() => {
-                                        setSelectedItem(item);
-                                        setShowConfirmModal(true);
-                                    }}
-                                    style={{ ...styles.toggleEnabled, color: 'gray' }}
-                                    size={24}
-                                />
-                                )
-                            )}
-                            {onReturn && (
-                                <MdAssignmentReturn
-                                    title="Registrar devolución"
-                                    onClick={() => onReturn(item)}
-                                    style={{ ...styles.iconAction, color: '#27ae60' }}
-                                    size={20}
-                                />
-                            )}
+                            <tr key={index} style={styles.tbodyRow}>
+                                {columns.filter(col => !col.hidden).map(col => (
+                                    <td
+                                        key={col.accessor}
+                                        style={{
+                                        ...(col.accessor === 'state' && styles.estadoColor(item.state)),
+                                        ...((col.accessor === 'rut' || col.accessor.toLowerCase().includes('fecha')) && { whiteSpace: 'nowrap' }),
+                                        }}
+                                    >
+                                        {item[col.accessor]}
+                                    </td>
+                                ))}
+                                <td style={styles.nowrapCell}>
+                                {onEdit && (
+                                    <MdSearch
+                                        title="Ver detalles"
+                                        onClick={() => onEdit(item)}
+                                        style={styles.iconAction}
+                                        size={20}
+                                    />
+                                )}
+                                {onViewReservations && (
+                                    <MdBookOnline
+                                        title="Ver reservas"
+                                        onClick={() => onViewReservations(item)}
+                                        style={{ ...styles.iconAction, color: '#3498db' }}
+                                        size={20}
+                                    />
+                                )}
+                                {onViewFines && (
+                                    <MdOutlineGavel
+                                        title="Ver multas"
+                                        onClick={() => onViewFines(item)}
+                                        style={{ ...styles.iconAction, color: '#e67e22' }}
+                                        size={20}
+                                    />
+                                )}
+                                {onToggleStatus && (
+                                    item.state === 'Activo' ? (
+                                    <MdOutlineToggleOn
+                                        title="Bloquear"
+                                        onClick={() => {
+                                            setSelectedItem(item);
+                                            setShowConfirmModal(true);
+                                        }}
+                                        style={{ ...styles.toggleEnabled, color: 'green' }}
+                                        size={24}
+                                    />
+                                    ) : (
+                                    <MdOutlineToggleOff
+                                        title="Activar"
+                                        onClick={() => {
+                                            setSelectedItem(item);
+                                            setShowConfirmModal(true);
+                                        }}
+                                        style={{ ...styles.toggleEnabled, color: 'gray' }}
+                                        size={24}
+                                    />
+                                    )
+                                )}
+                                {onReturn && (
+                                    <MdAssignmentReturn
+                                        title="Registrar devolución"
+                                        onClick={() => onReturn(item)}
+                                        style={{ ...styles.iconAction, color: '#27ae60' }}
+                                        size={20}
+                                    />
+                                )}
                             </td>
                         </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-        
             <div style={styles.pagination}>
                 <button
                     style={styles.paginationButtonDefault}
@@ -158,7 +152,6 @@ export default function Table({
                 Next &gt;&gt;
                 </button>
             </div>
-        
             <ModalConfirm
                 isOpen={showConfirmModal}
                 message={`¿Estás seguro de que deseas cambiar el estado del lector "${selectedItem?.nombre || selectedItem?.email}"?`}
