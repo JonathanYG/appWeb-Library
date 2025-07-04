@@ -14,9 +14,13 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_book")
     private int id;
+
     private String author;
+
     private String title;
+
     private String type;
+
     @Lob
     private byte[] image64;
 }

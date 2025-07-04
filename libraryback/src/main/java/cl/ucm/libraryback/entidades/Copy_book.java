@@ -13,8 +13,12 @@ public class Copy_book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_copybook")
     private int id;
-    @Column(name = "book_fk")
-    private int bookfk;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "book_fk", referencedColumnName = "id_book", nullable = false)
+    private Book book;
+
+    @Column(nullable = false)
     private boolean state;
 
 }

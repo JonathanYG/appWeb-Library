@@ -1,6 +1,5 @@
 package cl.ucm.libraryback.entidades;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +15,6 @@ public class Rol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_rol")
     private int id;
-    private String name;
 
+    private String name;
 }
