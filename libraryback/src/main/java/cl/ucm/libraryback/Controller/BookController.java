@@ -1,11 +1,9 @@
 package cl.ucm.libraryback.Controller;
 
 import cl.ucm.libraryback.entidades.Book;
-import cl.ucm.libraryback.servicios.*;
+import cl.ucm.libraryback.servicios.ServicioBook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,4 +19,16 @@ public class BookController {
         return servicioBook.getBook();
     }
 
+
+    @GetMapping("/book/{id}")
+    public Book buscarBook(@PathVariable int id) {
+        return servicioBook.buscarBook(id);
+    }
+
+
+    @PostMapping(path = "/create")
+    public String create(Book book){
+    servicioBook.insertarBook(book);
+    return "ok";
+    }
 }

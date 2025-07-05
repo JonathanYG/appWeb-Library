@@ -30,6 +30,9 @@ public class ServicioBooklmpl implements ServicioBook{
     @Override
     public Book buscarBook(int id) {
         Optional<Book> bookOptional = crud.findById(id);
+        if(bookOptional.isPresent()){
+            return bookOptional.get();
+        }
         return null;
     }
 
