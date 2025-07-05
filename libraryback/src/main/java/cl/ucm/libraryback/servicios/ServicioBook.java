@@ -9,7 +9,7 @@ public interface ServicioBook {
     void insertarBook(Book book);
 
     List<Book> getBook();
-    Optional<Book> buscarBook(int id);
+    Book buscarBook(int id);
 
 
 }

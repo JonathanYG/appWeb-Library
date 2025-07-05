@@ -1,6 +1,7 @@
 package cl.ucm.libraryback.servicios;
 
 import cl.ucm.libraryback.entidades.Book;
+import cl.ucm.libraryback.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,8 @@ public class ServicioBooklmpl implements ServicioBook{
 
     @Autowired
 
-    @Qualifier("")
+    @Qualifier("bookRepository")
+    private BookRepository crud;
 
     @Override
     public void insertarBook(Book book) {
@@ -27,8 +29,8 @@ public class ServicioBooklmpl implements ServicioBook{
     }
 
     @Override
-    public Optional<Book> buscarBook(int id) {
-        Optional<>
+    public Book buscarBook(int id) {
+        Optional<Book> bookOptional = crud.findById(id);
         return null;
     }
 
