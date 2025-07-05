@@ -10,10 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("serviciobook")
-public class ServicioBooklmpl implements ServicioBook{
+public class ServicioBookImpl implements ServicioBook {
 
     @Autowired
-
     @Qualifier("bookRepository")
     private BookRepository crud;
 
@@ -23,19 +22,27 @@ public class ServicioBooklmpl implements ServicioBook{
     }
 
     @Override
-    public List<Book> getBook() {
+    public List<Book> getBooks() {
         return crud.findAll();
     }
 
     @Override
-    public Book buscarBook(int id) {
-        Optional<Book> bookOptional = crud.findById(id);
-        if(bookOptional.isPresent()){
-            return bookOptional.get();
-        }
-        return null;
+    public List<Book> buscarPorTipo(String type) {
+        return crud.findByType(type);
     }
 
+    @Override
+    public List<Book> buscarPorAutor(String author) {
+        return crud.findByAuthor(author);
+    }
 
+    @Override
+    public List<Book> buscarPorTitulo(String title) {
+        return crud.findByTitle(title);
+    }
 
+    @Override
+    public Optional<Book> buscarBook(int id) {
+        return crud.findById(id);
+    }
 }

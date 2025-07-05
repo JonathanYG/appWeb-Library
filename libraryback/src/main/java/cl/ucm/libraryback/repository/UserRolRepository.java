@@ -18,5 +18,7 @@ public interface UserRolRepository extends JpaRepository<User_rol, Integer> {
         WHERE u.email = :username
     """, nativeQuery = true)
     List<String> getRolesByUsername(String username);
+
+    User_rol findByUserFK(String userFk);
 }
 
