@@ -10,14 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api")
 public class BookController {
 
     @Autowired
     private ServicioBook servicioBook;
 
-    @GetMapping
+    @GetMapping("/book")
     public List<Book> book() {
         return servicioBook.getBook();
+    }
+
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "¡Hola, mundo!";
     }
 }
