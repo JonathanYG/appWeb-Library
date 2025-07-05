@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { MdOutlineToggleOn, MdOutlineToggleOff, MdSearch, MdBookOnline, MdOutlineGavel } from 'react-icons/md';
-import { MdAssignmentReturn } from 'react-icons/md';
+import { MdAssignmentReturn, MdContentCopy } from 'react-icons/md';
 import ModalConfirm from '../components/ModalConfirm.jsx';
 import { StylesTable } from '../styles/StylesTable.jsx';
+import Imagedefault from "../assets/fondoUCM.jpg";
 
 export default function Table({
     title,
@@ -13,6 +14,7 @@ export default function Table({
     onViewReservations,
     onViewFines,
     onReturn,
+    onCreateCopy,
     rowsPerPage = 5
 }) {
     const styles = StylesTable();
@@ -36,7 +38,7 @@ export default function Table({
         setShowConfirmModal(false);
     };
 
-    const hasActions = onEdit || onToggleStatus || onViewReservations || onViewFines || onReturn;
+    const hasActions = onEdit || onToggleStatus || onViewReservations || onViewFines || onReturn || onCreateCopy;
 
     return (
         <div style={styles.container}>
@@ -58,11 +60,20 @@ export default function Table({
                                     <td
                                         key={col.accessor}
                                         style={{
-                                        ...(col.accessor === 'state' && styles.estadoColor(item.state)),
-                                        ...((col.accessor === 'rut' || col.accessor.toLowerCase().includes('fecha')) && { whiteSpace: 'nowrap' }),
+                                            ...((col.accessor === 'state') && styles.estadoColor(item.state)),
+                                            ...(col.accessor === 'estado' && styles.estadoColor(item.estado)),
+                                            ...((col.accessor === 'rut' || col.accessor.toLowerCase().includes('fecha')) && { whiteSpace: 'nowrap' }),
                                         }}
                                     >
-                                        {item[col.accessor]}
+                                        {col.accessor === 'image64' ? (
+                                          <img
+                                            src={item.image64 ? `data:image/png;base64,${item.image64}` : Imagedefault}
+                                            alt="Libro"
+                                            style={{ width: '50px', height: 'auto', borderRadius: '4px' }}
+                                          />
+                                        ) : (
+                                          item[col.accessor]
+                                        )}
                                     </td>
                                 ))}
                                 <td style={styles.nowrapCell}>
@@ -118,6 +129,14 @@ export default function Table({
                                         title="Registrar devolución"
                                         onClick={() => onReturn(item)}
                                         style={{ ...styles.iconAction, color: '#27ae60' }}
+                                        size={20}
+                                    />
+                                )}
+                                {onCreateCopy && (
+                                    <MdContentCopy
+                                        title="Crear copia del libro"
+                                        onClick={() => onCreateCopy(item)}
+                                        style={{ ...styles.iconAction, color: '#9b59b6' }} // morado u otro color
                                         size={20}
                                     />
                                 )}

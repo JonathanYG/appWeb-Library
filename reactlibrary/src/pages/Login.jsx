@@ -5,11 +5,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { CustomButton } from '../components/CustomButton.jsx'
 import image from '../assets/imagenWelcome.webp'
+import { useUser } from '../context/UserContext.jsx';
 // import { loginRequest } from '../api/auth.js';
 
 export function Login() {
   const navigate = useNavigate();
   const styles = StylesLogin();
+
+  const { loginUsuario } = useUser();
 
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [email, setEmail] = useState('');
@@ -29,7 +32,7 @@ export function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const emailRegex  = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         
     if (email.trim() === '' || contrasena.trim() === '') {
       toast.warn('Por favor completa todos los campos.', {
@@ -39,7 +42,7 @@ export function Login() {
       return;
     }
 
-    if (!gmailRegex.test(email)) {
+    if (!emailRegex .test(email)) {
       toast.error('Por favor ingresa un correo válido de Gmail (ejemplo@gmail.com).', {
         theme: "dark",
         transition: Bounce,
@@ -49,10 +52,22 @@ export function Login() {
 
     try {
       // const res = await loginRequest({ email, contrasena });
-      // localStorage.setItem('token', res.data.token);
-      // localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
+      // loginUsuario({
+      //   token: res.data.token,
+      //   usuario: res.data.usuario  // suponiendo que venga así
+      // });
 
-      console.log('Inicio de sesión exitoso:', { email, contrasena });
+      // Simulación de login sin backend
+      loginUsuario({
+        token: "token-de-prueba-123",
+        usuario: {
+          email: "lector@ucm.cl",
+          name: "Administrador",
+          lastName: "Sistema",
+          state: true,
+          rol: "ADMIN",
+        }
+      });
 
       toast.success('Inicio de sesión exitoso', {
         theme: "dark",

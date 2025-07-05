@@ -1,51 +1,74 @@
 import React, { useState, useEffect } from 'react';
-// import { Bounce, toast } from 'react-toastify';
+import { Bounce, toast } from 'react-toastify';
 import { SearchBar } from '../components/SearchBar.jsx';
 import { StylesReaders } from '../styles/StylesReaders.jsx';
 import Table from '../components/Table.jsx';
 import ModalTable from '../components/ModalTable.jsx';
 import ModalForm from '../components/ModalForm.jsx';
+import { getAllUsers, toggleUserState, getUserByEmail } from '../api/AuthApi.js';
+import { findBookingsByEmail } from '../api/BookingApi.js';
+import { getFinesByEmail } from '../api/FineApi.js';
 
 export function Readers() {
     const styles = StylesReaders();
 
     const [filteredReaders, setFilteredReaders] = useState([]);
-    const [allReaders, setAllReaders] = useState([]);
+    const [, setAllReaders] = useState([]);
     const [modalData, setModalData] = useState([]);
     const [modalTitle, setModalTitle] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [selectedReader, setSelectedReader] = useState(null);
     const [showFormModal, setShowFormModal] = useState(false);
 
-    // Simulación de carga inicial de lectores
     useEffect(() => {
-        const sampleData = [
-            { id: 1, email: 'jane@bookhub.com', lastName: 'Doe', Name: 'Jane', password: '••••••', state: true },
-            { id: 2, email: 'john@bookhub.com', lastName: 'Smith', Name: 'John', password: '••••••', state: false },
-        ];
-        setAllReaders(sampleData);
-        setFilteredReaders(sampleData);
+        fetchAllUsers();
     }, []);
 
-    const handleSearch = (text) => {
-        const lower = text.toLowerCase();
-        const filtered = allReaders.filter(r => r.email.toLowerCase().includes(lower));
-        setFilteredReaders(filtered);
+    const fetchAllUsers = async () => {
+        try {
+            const res = await getAllUsers();
+            const users = res.data
+                .filter(u => u && u.rol && u.email) // valida que u, rol y email existan
+                .filter(u => u.rol.toLowerCase() === 'lector');
+    
+            setAllReaders(users);
+            setFilteredReaders(users);
+        } catch (error) {
+            console.error("Error al cargar los usuarios:", error);
+            toast.error("Error al cargar los usuarios", { theme: 'dark', transition: Bounce });
+        }
+    };
+
+    const handleSearch = async (text) => {
+        if (!text) return fetchAllUsers();
+
+        try {
+            const res = await getUserByEmail(text);
+            const usuario = res.data;
+            if (usuario.rol.toLowerCase() === 'lector') {
+                setFilteredReaders([usuario]);
+            } else {
+                setFilteredReaders([]);
+            }
+        } catch (error) {
+            console.error("Error al buscar el usuario:", error);
+            setFilteredReaders([]);
+        }
     };
 
     const columns = [
         { accessor: 'email', label: 'Email' },
         { accessor: 'lastName', label: 'Apellido' },
-        { accessor: 'Name', label: 'Nombre' },
-        { accessor: 'password', label: 'Contraseña' },
+        { accessor: 'name', label: 'Nombre' },
         { accessor: 'state', label: 'Estado' },
+        { accessor: 'rol', label: 'Rol' },
     ];
     const reservationColumns = [
         { accessor: "image64", label: "Imagen" },
         { accessor: "title", label: "Título" },
         { accessor: "author", label: "Autor" },
         { accessor: "type", label: "Tipo" },
-        { accessor: "state", label: "Estado" },
+        { accessor: "estado", label: "Estado" },
         { accessor: "dateBooking", label: "Fecha Préstamo" },
         { accessor: "dateReturn", label: "Fecha Devolución" },
     ];  
@@ -56,121 +79,67 @@ export function Readers() {
     ];
     const formInputs = selectedReader ? [
         { label: 'Correo Electrónico', name: 'email', type: 'email', value: selectedReader.email, disabled: true },
-        { label: 'Nombre', name: 'Name', type: 'text', value: selectedReader.Name, disabled: true },
+        { label: 'Nombre', name: 'name', type: 'text', value: selectedReader.name, disabled: true },
         { label: 'Apellido', name: 'lastName', type: 'text', value: selectedReader.lastName, disabled: true },
-        { label: 'Contraseña', name: 'password', type: 'password', value: selectedReader.password, disabled: true },
     ] : [];
     const formSelects = selectedReader ? [
         {
             label: 'Estado',
             name: 'state',
-            value: selectedReader.state === 'Activo',
+            value: selectedReader.state,
             disabled: true,
             options: [
-                { label: 'Activo', value: true },
-                { label: 'Inactivo', value: false },
+                { label: 'Activo', value: 'Activo' },
+                { label: 'Bloqueado', value: 'Bloqueado' },
             ],
         },
     ] : [];
     const formattedReaders = filteredReaders.map(r => ({
         ...r,
-        state: r.state ? 'Activo' : 'Boqueado',
+        state: r.state ? 'Activo' : 'Bloqueado',
     }));
 
-    // Simula actualizacion de datos en "base de datos"
-    // const handleSubmitEdit = (formData) => {
-    //     const values = Object.values(formData);
-    //     const hasEmpty = values.some((v) => v === '' || v === null || v === undefined);
-      
-    //     if (hasEmpty) {
-    //       toast.warn("Por favor completa todos los campos.", {
-    //         theme: 'dark',
-    //         transition: Bounce,
-    //       });
-    //       return;
-    //     }
-      
-    //     // Simula actualización en el "backend"
-    //     setAllReaders(prev =>
-    //       prev.map(reader =>
-    //         reader.email === formData.email ? { ...formData, state: formData.state === 'Activo' } : reader
-    //       )
-    //     );
-      
-    //     setFilteredReaders(prev =>
-    //       prev.map(reader =>
-    //         reader.email === formData.email ? { ...formData, state: formData.state === 'Activo' } : reader
-    //       )
-    //     );
-      
-    //     toast.success("Datos del lector actualizados correctamente.", {
-    //       theme: 'dark',
-    //       transition: Bounce,
-    //     });
-      
-    //     setShowFormModal(false); // cerrar el modal
-    // };
-
-    // Simula cambio de estado en "base de datos"
     const handleToggleStatus = async (reader) => {
-        const nuevoEstado = reader.state === 'Activo' ? 'Boqueado' : 'Activo';
-
-        // Simulación de "actualización" local
-        setAllReaders(prev =>
-            prev.map(u =>
-                u.email === reader.email ? { ...u, state: nuevoEstado === 'Activo' } : u
-            )
-        );
-
-        setFilteredReaders(prev =>
-            prev.map(u =>
-                u.email === reader.email ? { ...u, state: nuevoEstado === 'Activo' } : u
-            )
-        );
+        try {
+            await toggleUserState(reader.email);
+            fetchAllUsers();
+            toast.success(`Estado del lector ${reader.email} modificado`, { theme: 'dark', transition: Bounce });
+        } catch (error) {
+            console.error("Error al cambiar el estado del lector:", error);
+            toast.error("No se pudo cambiar el estado del lector", { theme: 'dark', transition: Bounce });
+        }
     };
 
-    // Simula obtener reservas por email
-    const handleViewReservations = (reader) => {
-        const fakeReservations = [
-            {
-                image64: "", title: "Cien Años de Soledad", author: "G. G. Márquez",
-                type: "Novela", state: true, dateBooking: "2025-05-10", dateReturn: "2025-06-10"
-            },
-            {
-                image64: "", title: "El Principito", author: "Antoine de Saint-Exupéry",
-                type: "Fábula", state: false, dateBooking: "2025-04-15", dateReturn: "2025-05-15"
-            },
-            {
-                image64: "", title: "1984", author: "George Orwell",
-                type: "Distopía", state: true, dateBooking: "2025-03-20", dateReturn: "2025-04-20"
-            },
-        ];
-
-        const formattedFines = fakeReservations.map(f => ({
-            ...f,
-            state: f.state ? 'Prestado' : 'Libre',
-        }));
-
-        setModalTitle(`Reservas de ${reader.email}`);
-        setModalData(formattedFines);
-        setShowModal(true);
+    const handleViewReservations = async (reader) => {
+        try {
+            const res = await findBookingsByEmail(reader.email);
+            const data = Array.isArray(res.data) ? res.data : [];
+            console.log("Reservas obtenidas:", data);
+            setModalTitle(`Reservas de ${reader.email}`);
+            setModalData(data);
+            setShowModal(true);
+        } catch (error) {
+            console.error("Error al obtener reservas:", error);
+            toast.error("Error al obtener reservas", { theme: 'dark', transition: Bounce });
+        }
     };
 
-    // Simula obtener multas por email
-    const handleViewFines = (reader) => {
-        const fakeFines = [
-            { description: 'Retraso en devolución', amount: '$5', state: true },
-            { description: 'Libro perdido', amount: '$20', state: false },
-        ];
-
-        const formattedFines = fakeFines.map(f => ({
-            ...f,
-            state: f.state ? 'Activa' : 'Pagada',
-        }));
-
-        setModalTitle(`Multas de ${reader.email}`);
-        setModalData(formattedFines);
-        setShowModal(true);
+    const handleViewFines = async (reader) => {
+        console.log("Obteniendo multas para el lector:", reader);
+        try {
+            const res = await getFinesByEmail(reader.email);
+            const data = Array.isArray(res.data) ? res.data : [];
+            const formatted = data.map(f => ({
+                ...f,
+                state: f.state ? 'Pagada' : 'Activa',
+            }));
+            setModalTitle(`Multas de ${reader.email}`);
+            setModalData(formatted);
+            setShowModal(true);
+        } catch (error) {
+            console.error("Error al obtener multas:", error);
+            toast.error("Error al obtener multas", { theme: 'dark', transition: Bounce });
+        }
     };
 
     const handleEditReader = (reader) => {
@@ -218,7 +187,6 @@ export function Readers() {
                 selects={formSelects}
                 showPasswordToggle={true}
                 submitText="Guardar"
-                // onSubmit={handleSubmitEdit}
             /> 
         
         </div>

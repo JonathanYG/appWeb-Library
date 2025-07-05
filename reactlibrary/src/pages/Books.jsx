@@ -6,38 +6,71 @@ import ModalForm from "../components/ModalForm.jsx";
 import { CustomButton } from "../components/CustomButton.jsx";
 import { FaPlus } from "react-icons/fa";
 import { toast, Bounce } from "react-toastify";
+import { getAllBooks, getBooksByTitle, createBook, createCopy, getAvailableCopiesByTitle  } from "../api/BookApi.js";
 
 export function Books() {
     const styles = StylesReaders();
 
-    const [allBooks, setAllBooks] = useState([]);
+    const [, setAllBooks] = useState([]);
     const [filteredBooks, setFilteredBooks] = useState([]);
     const [showBookModal, setShowBookModal] = useState(false);
     const [showCopyModal, setShowCopyModal] = useState(false);
     const [selectedBookId, setSelectedBookId] = useState(null);
     const [selectedBookTitle, setSelectedBookTitle] = useState("");
     const [newBook, setNewBook] = useState({ author: "", title: "", type: "", image64: null });
+    const [loadingCreateBook, setLoadingCreateBook] = useState(false);
+    const [loadingCreateCopy, setLoadingCreateCopy] = useState(false);
 
     const typeOptions = [
         { value: "Ficción", label: "Ficción" },
         { value: "No Ficción", label: "No Ficción" },
         { value: "Infantil", label: "Infantil" },
         { value: "Fantasía", label: "Fantasía" },
+        { value: "Novela", label: "Novela" },
+        { value: "Ciencia Ficción", label: "Ciencia Ficción" },
     ];
 
     useEffect(() => {
-        const mockBooks = [
-            { id: 1, author: "Autor 1", title: "Libro A", type: "Ficción", image64: "📕" },
-            { id: 2, author: "Autor 2", title: "Libro B", type: "Fantasía", image64: "📘" },
-        ];
-        setAllBooks(mockBooks);
-        setFilteredBooks(mockBooks);
+        fetchBooksWithCopies();
     }, []);
 
-    const handleSearch = (text) => {
-        const lower = text.toLowerCase();
-        const filtered = allBooks.filter((b) => b.title.toLowerCase().includes(lower));
-        setFilteredBooks(filtered);
+    const fetchBooksWithCopies = async () => {
+        try {
+            const res = await getAllBooks();
+            const books = res.data;
+        
+            // Para cada libro, obtener las copias disponibles
+            const booksWithCopies = await Promise.all(
+                books.map(async (book) => {
+                try {
+                    const copyRes = await getAvailableCopiesByTitle(book.title);
+                    const availableCopies = copyRes.data.length || 0;
+        
+                    return { ...book, availableCopies };
+                } catch (err) {
+                    console.error(`Error al obtener copias de ${book.title}:`, err);
+                    return { ...book, availableCopies: 0 };
+                }
+                })
+            );
+            setAllBooks(booksWithCopies);
+            setFilteredBooks(booksWithCopies);
+        } catch (error) {
+            console.error("Error al obtener libros:", error);
+            toast.error("Error al obtener libros", { theme: "dark", transition: Bounce });
+        }
+      };
+
+    const handleSearch = async (text) => {
+        if (!text) return fetchBooksWithCopies();
+
+        try {
+            const res = await getBooksByTitle(text);
+            setFilteredBooks(res.data);
+        } catch (error) {
+            console.error("Error al buscar libros:", error);
+            toast.error("Error al buscar libros", { theme: "dark", transition: Bounce });
+        }
     };
 
     const handleOpenCreateCopy = (book) => {
@@ -46,54 +79,57 @@ export function Books() {
         setShowCopyModal(true);
     };
 
-    const handleCreateBook = () => {
+    const handleCreateBook = async () => {
+        if (loadingCreateBook) return;
         const { author, title, type, image64 } = newBook;
         if (!author || !title || !type || !image64) {
             toast.warn("Todos los campos son obligatorios.", { theme: "dark", transition: Bounce });
             return;
         }
-
-        const formData = new FormData();
-        formData.append("author", author);
-        formData.append("title", title);
-        formData.append("type", type);
-        formData.append("image64", image64);
-
-        // Mostrar los datos dentro del FormData
-        console.log("Contenido de formData:");
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value);
+    
+        try {
+            setLoadingCreateBook(true);
+            await createBook({ author, title, type, image64 });
+            toast.success("Libro creado exitosamente.", { theme: "dark", transition: Bounce });
+            setShowBookModal(false);
+            setNewBook({ author: "", title: "", type: "", image64: null });
+            fetchBooksWithCopies();
+        } catch (error) {
+            console.error("Error al crear libro:", error);
+            toast.error("No se pudo crear el libro.", { theme: "dark", transition: Bounce });
+        } finally {
+            setLoadingCreateBook(false);
         }
-
-        // Simulación de éxito
-        toast.success("Libro creado exitosamente.", { theme: "dark", transition: Bounce });
-        setShowBookModal(false);
-        setNewBook({ author: "", title: "", type: "", image64: null });
     };
 
-    const handleCreateCopy = () => {
+    const handleCreateCopy = async () => {
+        if (loadingCreateCopy) return;
+    
         if (!selectedBookId) {
             toast.error("Error al identificar el libro.", { theme: "dark", transition: Bounce });
             return;
         }
-      
-        const copyPayload = {
-            bookFK: selectedBookId,
-            state: true,
-        };
-      
-        console.log("Datos a enviar:", copyPayload);
-      
-        toast.success("Copia registrada exitosamente.", { theme: "dark", transition: Bounce });
-        setShowCopyModal(false);
+    
+        try {
+            setLoadingCreateCopy(true);
+            await createCopy(selectedBookId);
+            toast.success("Copia registrada exitosamente.", { theme: "dark", transition: Bounce });
+            setShowCopyModal(false);
+            fetchBooksWithCopies();
+        } catch (error) {
+            console.error("Error al crear copia:", error);
+            toast.error("No se pudo crear la copia.", { theme: "dark", transition: Bounce });
+        } finally {
+            setLoadingCreateCopy(false);
+        }
     };
-      
 
     const bookColumns = [
         { accessor: "title", label: "Título" },
         { accessor: "author", label: "Autor" },
         { accessor: "type", label: "Tipo" },
         { accessor: "image64", label: "Imagen" },
+        { accessor: "availableCopies", label: "Copias Disponibles" },
     ];
 
     return (
@@ -125,7 +161,7 @@ export function Books() {
                 columns={bookColumns}
                 data={filteredBooks}
                 rowsPerPage={5}
-                onEdit={handleOpenCreateCopy}
+                onCreateCopy={handleOpenCreateCopy}
             />
 
             <ModalForm
@@ -134,6 +170,7 @@ export function Books() {
                 onSubmit={handleCreateBook}
                 title="Crear Libro"
                 confirmText="¿Estás seguro de que deseas crear este nuevo libro?"
+                disabled={loadingCreateBook}
                 inputs={[
                     {
                         label: "Autor",
@@ -154,7 +191,10 @@ export function Books() {
                         name: "image64",
                         type: "file",
                         value: "",
-                        onChange: (e) => setNewBook({ ...newBook, image64: e.target.value }),
+                        onChange: (e) => {
+                            const file = e.target.value;
+                            setNewBook({ ...newBook, image64: file });
+                        },
                     },
                 ]}
                 selects={[
@@ -174,6 +214,7 @@ export function Books() {
                 onSubmit={handleCreateCopy}
                 title={`Crear Copia de: ${selectedBookTitle}`}
                 confirmText="¿Estás seguro de que deseas crear una copia de este libro?"
+                disabled={loadingCreateCopy}
                 inputs={[
                     {
                         label: "Título",

@@ -15,7 +15,8 @@ export default function ModalForm({
   showPasswordToggle = false,
   onSubmit,
   submitText = "Guardar",
-  confirmText = `¿Estás seguro de que deseas ${submitText.toLowerCase()}?`
+  confirmText = `¿Estás seguro de que deseas ${submitText.toLowerCase()}?`,
+  disabled = false
 }) {
   const styles = StylesModal();
   const [showPassword, setShowPassword] = useState(false);
@@ -85,9 +86,14 @@ export default function ModalForm({
                             if (file) {
                               const previewURL = URL.createObjectURL(file);
                               setImagePreview(previewURL); // para mostrar la vista previa
-                              if (input.onChange) {
-                                input.onChange({ target: { value: file } }); // envía el File directamente
-                              }
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const base64String = reader.result.split(',')[1]; // quitar prefijo data:image/png;base64,
+                                if (input.onChange) {
+                                  input.onChange({ target: { value: base64String } });
+                                }
+                              };
+                              reader.readAsDataURL(file);
                             }
                           }}
                         />
@@ -175,9 +181,14 @@ export default function ModalForm({
                             if (file) {
                               const previewURL = URL.createObjectURL(file);
                               setImagePreview(previewURL);
-                              if (input.onChange) {
-                                input.onChange({ target: { value: file } });
-                              }
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const base64String = reader.result.split(',')[1]; // quitar prefijo data:image/png;base64,
+                                if (input.onChange) {
+                                  input.onChange({ target: { value: base64String } });
+                                }
+                              };
+                              reader.readAsDataURL(file);
                             }
                           }}
                         />
@@ -263,7 +274,11 @@ export default function ModalForm({
                   text={submitText}
                   onClick={() => setShowConfirm(true)}
                   icon={<FaRegSave />}
-                  style={styles.buttonPrimaryStyle}
+                  style={{
+                    ...styles.buttonPrimaryStyle,
+                    opacity: disabled ? 0.6 : 1,
+                    pointerEvents: disabled ? "none" : "auto",
+                  }}
                   hoverStyle={styles.buttonPrimaryHoverStyle}
                   type="button"
                 />

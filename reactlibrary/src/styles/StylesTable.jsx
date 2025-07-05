@@ -45,7 +45,7 @@ export function StylesTable() {
     },
     estadoColor: (estado) => ({
       color:
-        estado?.toLowerCase() === "activo" || estado?.toLowerCase() === "pendiente" || estado?.toLowerCase() === "activa" || estado?.toLowerCase() === "libre" 
+        estado?.toLowerCase() === "activo" || estado?.toLowerCase() === "pendiente" || estado?.toLowerCase() === "activa" || estado?.toLowerCase() === "devuelto" 
           ? "green"
           : estado?.toLowerCase() === "finalizado" || estado?.toLowerCase() === "pagada" || estado?.toLowerCase() === "finalizada" 
           ? "#0A3D62"

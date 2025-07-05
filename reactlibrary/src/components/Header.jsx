@@ -5,6 +5,12 @@ import { CustomButton } from '../components/CustomButton.jsx';
 import ModalTable from '../components/ModalTable.jsx';
 import ModalForm from "../components/ModalForm.jsx";
 import { toast, Bounce } from "react-toastify";
+import { useUser } from '../context/UserContext';
+import { findBookingsByEmail } from '../api/BookingApi';
+import { getFinesByEmail } from '../api/FineApi';
+import { getAllUsers } from "../api/AuthApi";
+import { getAllBooks, getAvailableCopiesById  } from "../api/BookApi";
+import { createBooking } from "../api/BookingApi";
 
 export function Header() {
   const navigate = useNavigate();
@@ -21,15 +27,12 @@ export function Header() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const fakeBooks = [
-    { value: 'copy001', label: '1984' },
-    { value: 'copy002', label: 'Fahrenheit 451' },
-    { value: 'copy003', label: 'El Principito' },
-  ];
-  const fakeUsers = [
-    { value: 'john@bookhub.com', label: 'john@bookhub.com' },
-    { value: 'jane@bookhub.com', label: 'jane@bookhub.com' },
-  ];
+  const [usersOptions, setUsersOptions] = useState([]);
+  const [booksOptions, setBooksOptions] = useState([]);
+  const [loadingCreateLoan, setLoadingCreateLoan] = useState(false);
+
+  const { logoutUsuario, usuarioContext } = useUser();
+
   const today = new Date().toISOString().split("T")[0];
   const inputsCreateLoan = [
     {
@@ -50,6 +53,53 @@ export function Header() {
     },
   ];
 
+  const fetchBooks = async () => {
+    try {
+      const res = await getAllBooks();
+      const books = res.data;
+  
+      const booksWithAvailableCopies = [];
+  
+      for (const book of books) {
+        const resCopies = await getAvailableCopiesById(book.id);
+        const availableCopies = resCopies.data;
+  
+        if (availableCopies.length > 0) {
+          booksWithAvailableCopies.push({
+            value: availableCopies[0].id,
+            label: book.title
+          });
+        }
+      }
+  
+      setBooksOptions(booksWithAvailableCopies);
+    } catch (error) {
+      console.error("Error al obtener libros con copias disponibles:", error);
+      toast.error("No se pudieron cargar los libros.");
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await getAllUsers();
+        const options = res.data.map(u => ({
+          value: u.email,
+          label: u.email
+        }));
+        setUsersOptions(options);
+      } catch (error) {
+        console.error("Error al obtener usuarios:", error);
+        toast.error("No se pudieron cargar los usuarios.");
+      }
+    };
+    fetchUsers();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => setScrolling(window.scrollY > 0);
     window.addEventListener('scroll', handleScroll);
@@ -57,24 +107,10 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     setLogueado(!!token);
-    const userData = JSON.parse(localStorage.getItem('usuario'));
-    setRol(userData?.rol || null);
-
-    // Simulación (reemplaza con fetch o props reales)
-    setPrestamosData([
-      {
-        image64: "", title: "Cien Años de Soledad", author: "G. G. Márquez",
-        type: "Novela", state: true, dateBooking: "2025-05-10", dateReturn: "2025-06-10"
-      },
-    ]);
-    // Simulación (reemplaza con fetch o props reales)
-    setMultasData([
-      { amount: 500, description: "Retraso en entrega", state: true },
-    ]);
-
-  }, [location.pathname]);
+    setRol(usuarioContext?.rol || null);
+  }, [usuarioContext]);
 
   const handleLogoClick = () => {
     if (location.pathname === '/login' || location.pathname === '/register') return navigate(location.pathname);
@@ -82,9 +118,30 @@ export function Header() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
+    logoutUsuario();
     navigate('/login');
+  };
+
+  const handleMostrarPrestamos = async () => {
+    try {
+      const res = await findBookingsByEmail(usuarioContext.email);
+      setPrestamosData(res.data);
+      setModalPrestamosOpen(true);
+    } catch (error) {
+      console.error("Error al obtener préstamos:", error);
+      toast.error("No se pudieron cargar los préstamos.");
+    }
+  };
+  
+  const handleMostrarMultas = async () => {
+    try {
+      const res = await getFinesByEmail(usuarioContext.email);
+      setMultasData(res.data);
+      setModalMultasOpen(true);
+    } catch (error) {
+      console.error("Error al obtener multas:", error);
+      toast.error("No se pudieron cargar las multas.");
+    }
   };
 
   const renderBotones = () => {
@@ -129,8 +186,8 @@ export function Header() {
     return (
       <>
         {renderBtn("Home", "/home")}
-        {renderBtn("Mis Préstamos", "", () => setModalPrestamosOpen(true))}
-        {renderBtn("Mis Multas", "", () => setModalMultasOpen(true))}
+        {renderBtn("Mis Préstamos", "", handleMostrarPrestamos)}
+        {renderBtn("Mis Multas", "", handleMostrarMultas)}
         {renderBtn("Salir", "", handleLogout)}
       </>
     );
@@ -141,7 +198,7 @@ export function Header() {
     { accessor: "title", label: "Título" },
     { accessor: "author", label: "Autor" },
     { accessor: "type", label: "Tipo" },
-    { accessor: "state", label: "Estado" },
+    { accessor: "estado", label: "Estado" },
     { accessor: "dateBooking", label: "Fecha Préstamo" },
     { accessor: "dateReturn", label: "Fecha Devolución" },
   ];
@@ -152,41 +209,48 @@ export function Header() {
     { accessor: "state", label: "Estado" },
   ];
 
-  const transformPrestamos = prestamosData.map(item => ({
-    ...item,
-    state: item.state ? "Prestado" : "Libre",
-  }));
+  const transformPrestamos = Array.isArray(prestamosData)
+  ? prestamosData.map(item => ({
+      ...item,
+      state: item.state ? "Prestado" : "Libre",
+    }))
+  : [];
 
-  const transformMultas = multasData.map(item => ({
-    ...item,
-    state: item.state ? "Activo" : "Inactivo",
-  }));
+  const transformMultas = Array.isArray(multasData)
+  ? multasData.map(item => ({
+      ...item,
+      state: item.state ? "Activo" : "Inactivo",
+    }))
+  : [];
 
-  const onSubmitCreateLoan = () => {
-    // Validación de campos
-    if (!selectedBook && !selectedUser) {
-      return toast.warn("Selecciona usuario y libro.");
-    }
-    if (!selectedBook) {
-      return toast.warn("Selecciona un libro.");
-    }
-    if (!selectedUser) {
-      return toast.warn("Selecciona un usuario.");
-    }
+  const onSubmitCreateLoan = async () => {
+    if (loadingCreateLoan) return;
   
-    const today = new Date().toISOString().split("T")[0];
+    if (!selectedBook || !selectedUser) {
+      toast.warn("Selecciona un usuario y un libro.");
+      return;
+    }
   
     const newLoan = {
-      copybookFK: selectedBook.value,
-      userFK: selectedUser.value,
-      dateBooking: today,
-      dateReturn: "",
-      state: 1,
+      copybookFk: selectedBook.value,
+      userFk: selectedUser.value,
     };
   
-    console.log("Enviar a backend:", newLoan);
-    toast.success("Préstamo registrado.");
-    setShowCreateModal(false);
+    try {
+      setLoadingCreateLoan(true);
+      await createBooking(newLoan);
+      toast.success(`Préstamo registrado para ${selectedUser.label} - ${selectedBook.label}`);
+      setShowCreateModal(false);
+      setSelectedUser(null);
+      setSelectedBook(null);
+      await fetchBooks();
+      window.location.reload();
+    } catch (error) {
+      console.error("Error al registrar préstamo:", error);
+      toast.error("No se pudo registrar el préstamo.");
+    } finally {
+      setLoadingCreateLoan(false);
+    }
   };
   
   const selectsCreateLoan = [
@@ -195,16 +259,16 @@ export function Header() {
       name: "user",
       value: selectedUser?.value || '',
       onChange: (e) =>
-        setSelectedUser(fakeUsers.find((u) => u.value === e.target.value)),
-      options: fakeUsers,
+        setSelectedUser(usersOptions.find((u) => u.value === e.target.value)),
+      options: usersOptions,
     },
     {
       label: "Libro",
       name: "book",
       value: selectedBook?.value || '',
       onChange: (e) =>
-        setSelectedBook(fakeBooks.find((b) => b.value === e.target.value)),
-      options: fakeBooks,
+        setSelectedBook(booksOptions.find((b) => b.value === e.target.value)),
+      options: booksOptions,
     },
   ];
 
@@ -245,6 +309,7 @@ export function Header() {
         onSubmit={onSubmitCreateLoan}
         selects={selectsCreateLoan}
         inputs={inputsCreateLoan}
+        disabled={loadingCreateLoan}
       />
     </header>
   );

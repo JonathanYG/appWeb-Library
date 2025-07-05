@@ -4,63 +4,45 @@ import { SearchBar } from "../components/SearchBar.jsx";
 import Table from "../components/Table.jsx";
 import ModalConfirm from "../components/ModalConfirm.jsx";
 import { toast, Bounce } from "react-toastify";
+import { getAllBookings, findBookingsByEmail, returnBooking } from "../api/BookingApi";
 
 export function Returns() {
     const styles = StylesReaders();
-    const [allBookings, setAllBookings] = useState([]);
+    const [, setAllBookings] = useState([]);
     const [filteredBookings, setFilteredBookings] = useState([]);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [loadingReturn, setLoadingReturn] = useState(false);
 
-    // Simula datos obtenidos desde el backend
     useEffect(() => {
-        const fakeData = [
-            {
-                email: "john@bookhub.com",
-                title: "Cien Años de Soledad",
-                copyBookFK: 1,
-                author: "Gabriel García Márquez",
-                type: "Ficción",
-                image64: "📚",
-                state: true,
-                dateBooking: "2024-06-01",
-                dateReturn: "",
-            },
-            {
-                email: "john@bookhub.com",
-                title: "1984",
-                copyBookFK: 2,
-                author: "George Orwell",
-                type: "Ficción",
-                image64: "📕",
-                state: true,
-                dateBooking: "2024-05-15",
-                dateReturn: "",
-            },
-            {
-                email: "jane@bookhub.com",
-                title: "El Principito",
-                copyBookFK: 3,
-                author: "Antoine de Saint-Exupéry",
-                type: "Infantil",
-                image64: "📘",
-                state: true,
-                dateBooking: "2024-06-10",
-                dateReturn: "",
-            },
-        ];
-
-        setAllBookings(fakeData);
-        setFilteredBookings(fakeData.filter(b => b.state === true));
+        fetchBookings();
     }, []);
 
-    // Filtra por email y por estado activo
-    const handleSearch = (emailInput) => {
-        const result = allBookings
-            .filter(b => b.email.toLowerCase().includes(emailInput.toLowerCase()))
-            .filter(b => b.state === true);
+    const fetchBookings = async () => {
+        try {
+            const res = await getAllBookings();
+            const data = res.data.filter(b => b.estado !== "Devuelto");
+            setAllBookings(res.data);
+            setFilteredBookings(data);
+        } catch (error) {
+            console.error("Error al obtener préstamos:", error);
+            toast.error("No se pudieron cargar los préstamos.", { theme: "dark", transition: Bounce });
+        }
+    };
 
-        setFilteredBookings(result);
+    const handleSearch = async (emailInput) => {
+        if (!emailInput.trim()) {
+            fetchBookings();
+            return;
+        }
+        try {
+            const res = await findBookingsByEmail(emailInput);
+            const filtered = res.data.filter(b => b.estado !== "Devuelto");
+            setFilteredBookings(filtered);
+        } catch (error) {
+            console.error("Error al buscar préstamos:", error);
+            toast.error("No se encontraron resultados.", { theme: "dark", transition: Bounce });
+        }
     };
 
     const handleReturnClick = (booking) => {
@@ -68,32 +50,22 @@ export function Returns() {
         setShowConfirm(true);
     };
 
-    const handleConfirmReturn = () => {
-        if (!selectedBooking) return;
-      
-        const today = new Date().toISOString().split("T")[0];
-      
-        const payload = {
-            userFK: selectedBooking.email,
-            copyBookFK: selectedBooking.copyBookFK,
-            state: false,
-            dateReturn: today,
-        };
-      
-        console.log("Payload a enviar:", payload);
-      
-        const updated = allBookings.map((b) =>
-            b === selectedBooking ? { ...b, state: false, dateReturn: today } : b
-        );
-      
-        setAllBookings(updated);
-        setFilteredBookings(updated.filter(b => b.email === selectedBooking.email && b.state === true));
-        setShowConfirm(false);
-      
-        toast.success("Devolución registrada exitosamente.", {
-            theme: "dark",
-            transition: Bounce,
-        });
+    const handleConfirmReturn = async () => {
+        if (!selectedBooking || loadingReturn) return;
+    
+        try {
+            setLoadingReturn(true);
+            await returnBooking(selectedBooking.id, selectedBooking.email);
+            toast.success("Devolución registrada exitosamente.", { theme: "dark", transition: Bounce });
+            setShowConfirm(false);
+            fetchBookings();
+            window.location.reload();
+        } catch (error) {
+            console.error("Error al registrar devolución:", error);
+            toast.error("No se pudo registrar la devolución.", { theme: "dark", transition: Bounce });
+        } finally {
+            setLoadingReturn(false);
+        }
     };
 
     const columns = [
@@ -102,14 +74,14 @@ export function Returns() {
         { accessor: "title", label: "Título" },
         { accessor: "author", label: "Autor" },
         { accessor: "type", label: "Tipo" },
-        { accessor: "state", label: "Estado" },
+        { accessor: "estado", label: "Estado" },
         { accessor: "dateBooking", label: "Fecha Préstamo" },
         { accessor: "dateReturn", label: "Fecha Devolución" },
     ];
     const formatted = filteredBookings.map(b => ({
         ...b,
-        state: b.state === true ? "Activa" : "Devuelta",
-        dateReturn: b.dateReturn || "Pendiente"
+        estado: b.estado === "Devuelto" ? "Devuelta" : "Prestado",
+        dateReturn: b.dateReturn || "Pendiente",
     }));
 
     return (

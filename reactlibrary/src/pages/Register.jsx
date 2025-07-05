@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { StylesRegister } from '../styles/StylesRegister.jsx';
 import { Bounce, toast } from 'react-toastify';
 import { CustomButton } from '../components/CustomButton.jsx'
-// import { registerRequest } from '../api/auth'; // A implementar
+import { registerUser } from '../api/AuthApi';
 
 export function Register() {
     const navigate = useNavigate();
@@ -18,13 +18,14 @@ export function Register() {
     });
     const [mostrarContrasena, setMostrarContrasena] = useState(false);
     const roleOptions = [
-        { label: 'Lector', value: 'lector' },
-        { label: 'Administrador', value: 'administrador' }
+        { label: 'Lector', value: 'LECTOR' },
+        { label: 'Administrador', value: 'ADMIN' }
     ];
     const stateOptions = [
         { label: 'Activo', value: true },
-        { label: 'Inactivo', value: false }
+        { label: 'Bloqueado', value: false }
     ];
+    const [loadingRegister, setLoadingRegister] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -36,21 +37,33 @@ export function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
+        if (loadingRegister) return;
+    
         const { email, name, lastName, password } = formData;
         if (!email || !name || !lastName || !password) {
             toast.warn("Por favor completa todos los campos.", { theme: 'dark', transition: Bounce });
             return;
         }
-
+    
         try {
-            // await registerRequest(formData);
-            console.log('Registro exitoso:', formData);
+            setLoadingRegister(true);
+            const payload = {
+                email,
+                name,
+                lastName,
+                password,
+                rol: formData.role.toUpperCase(),
+            };
+    
+            await registerUser(payload);
             toast.success("Registro exitoso.", { theme: 'dark', transition: Bounce });
             navigate('/login');
         } catch (error) {
-            console.log(error)
+            console.error(error);
             toast.error("Error al registrarse.", { theme: 'dark', transition: Bounce });
+        } finally {
+            setLoadingRegister(false);
         }
     };
 
@@ -80,13 +93,13 @@ export function Register() {
                             <select
                                 name="role"
                                 value={formData.role}
-                                onChange={handleChange}
+                                disabled={true}
                                 style={styles.select}
                             >
                                 {roleOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
+                                    <option key={option.value} value={option.value}>
                                     {option.label}
-                                </option>
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -140,12 +153,16 @@ export function Register() {
                     </div>
         
                     <div style={styles.buttonContainer}>
-                        <CustomButton
-                            text="Registrarse"
-                            onClick={handleSubmit}
-                            style={styles.button}
-                            hoverStyle={styles.buttonHover}
-                        />
+                    <CustomButton
+                        text={loadingRegister ? "Registrando..." : "Registrarse"}
+                        onClick={handleSubmit}
+                        style={{
+                            ...styles.button,
+                            opacity: loadingRegister ? 0.6 : 1,
+                            pointerEvents: loadingRegister ? "none" : "auto",
+                        }}
+                        hoverStyle={styles.buttonHover}
+                    />
                     </div>
                 <div style={styles.loginRedirect}>
                     ¿Ya tienes cuenta?
