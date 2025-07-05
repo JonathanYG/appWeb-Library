@@ -1,7 +1,7 @@
 package cl.ucm.libraryback.Controller;
 
 import cl.ucm.libraryback.entidades.Book;
-import cl.ucm.libraryback.servicios.ServicioBook;
+import cl.ucm.libraryback.servicios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +21,4 @@ public class BookController {
         return servicioBook.getBook();
     }
 
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "¡Hola, mundo!";
-    }
 }

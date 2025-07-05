@@ -24,7 +24,6 @@ public class ServicioBooklmpl implements ServicioBook{
 
     @Override
     public List<Book> getBook() {
-
         return crud.findAll();
     }
 
