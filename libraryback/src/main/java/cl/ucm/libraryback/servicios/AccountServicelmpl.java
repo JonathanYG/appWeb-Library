@@ -7,7 +7,6 @@ import cl.ucm.libraryback.repository.RolRepository;
 import cl.ucm.libraryback.repository.UserRepository;
 import cl.ucm.libraryback.repository.UserRolRepository;
 import cl.ucm.libraryback.dto.in.RegisterRequest;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class ServicioUserlmpl implements ServicioUser {
+public class AccountServicelmpl implements AccountService {
 
     @Autowired
     private UserRepository userRepository;
