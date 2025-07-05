@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+@Repository("bookRepository")
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
     // todos los libros de un tipo específico
