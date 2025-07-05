@@ -59,6 +59,7 @@ public class ServicioBookingImpl implements ServicioBooking {
         Date hoy = new Date();
         long diferencia = hoy.getTime() - booking.getDateReturn().getTime();
         long diasRetraso = diferencia / (1000 * 60 * 60 * 24);
+        booking.setDateReturn(hoy);
 
         booking.setState(false);
         bookingRepository.save(booking);

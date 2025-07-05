@@ -60,13 +60,39 @@ public class AuthController {
         return ResponseEntity.ok("Usuario registrado con éxito");
     }
 
-    // Obtener todos los usuarios
+    // Obtener todos los usuarios con rol LECTOR
     @GetMapping("/all")
-    public ResponseEntity<List<UsuarioConRol>> obtenerTodosConRol() {
+    public ResponseEntity<List<UsuarioConRol>> obtenerLectoresConRol() {
         List<UserEntity> usuarios = userRepository.findAll();
 
-        List<UsuarioConRol> salida = usuarios.stream().map(user -> {
-            // Obtener relación usuario-rol (asumiendo 1 rol por usuario)
+        List<UsuarioConRol> salida = usuarios.stream()
+                .map(user -> {
+                    User_rol userRol = userRolRepository.findByUserFK(user.getEmail());
+
+                    String rolNombre = "Sin rol";
+                    if (userRol != null) {
+                        Rol rol = rolRepository.findById(userRol.getRolFK()).orElse(null);
+                        if (rol != null) rolNombre = rol.getName();
+                    }
+
+                    return new UsuarioConRol(
+                            user.getEmail(),
+                            user.getName(),
+                            user.getLastName(),
+                            user.isState(),
+                            rolNombre
+                    );
+                })
+                .filter(usuario -> "LECTOR".equalsIgnoreCase(usuario.getRol())) // 🔹 Solo LECTOR
+                .toList();
+
+        return ResponseEntity.ok(salida);
+    }
+
+    // Buscar usuario por email
+    @GetMapping("/find/{email}")
+    public ResponseEntity<?> buscarPorEmail(@PathVariable String email) {
+        return userRepository.findById(email).map(user -> {
             User_rol userRol = userRolRepository.findByUserFK(user.getEmail());
 
             String rolNombre = "Sin rol";
@@ -75,16 +101,17 @@ public class AuthController {
                 if (rol != null) rolNombre = rol.getName();
             }
 
-            return new UsuarioConRol(
+            UsuarioConRol usuarioDTO = new UsuarioConRol(
                     user.getEmail(),
                     user.getName(),
                     user.getLastName(),
                     user.isState(),
                     rolNombre
             );
-        }).toList();
 
-        return ResponseEntity.ok(salida);
+            return ResponseEntity.ok(usuarioDTO);
+
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     // Cambiar estado activo/bloqueado de un usuario
