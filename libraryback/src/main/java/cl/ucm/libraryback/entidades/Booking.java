@@ -39,7 +39,7 @@ public class Booking {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_fk", referencedColumnName = "email", insertable = false, updatable = false)
-    private UserEntity  user;
+    private UserEntity user;
 
     private boolean state;
 }

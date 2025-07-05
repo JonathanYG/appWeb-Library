@@ -18,7 +18,7 @@ public class Copy_book {
     @JoinColumn(name = "book_fk", referencedColumnName = "id_book", nullable = false)
     private Book book;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private boolean state;
 
 }

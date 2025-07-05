@@ -8,10 +8,7 @@ import java.util.List;
 
 @Repository
 public interface FineRepository extends JpaRepository<Fine, Integer> {
-
     // Buscar todas las multas de un usuario por email
     List<Fine> findByUserFk(String email);
 
-    // Buscar solo multas activas (no pagadas)
-    List<Fine> findByUserFkAndStateTrue(String email);
 }
