@@ -35,6 +35,7 @@ public class SecurityConfig {
                         // ==== Rutas públicas (sin token) ====
                         .requestMatchers("/api/auth/**").permitAll()          // POST, GET, etc.
                         .requestMatchers(HttpMethod.GET, "/api/book/all/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/book/copy/available/**").permitAll()
 
                         // ==== Resto debe ir autenticado ====
                         .anyRequest().authenticated()

@@ -27,7 +27,7 @@ public class BookController {
 
     // POST: Crear un libro y automáticamente una copia disponible
     @PostMapping("/new")
-    @PreAuthorize("hasAuhothority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Book> crearLibro(@RequestBody Book libro) {
         servicioBook.insertarBook(libro);
 
@@ -42,6 +42,7 @@ public class BookController {
 
     // POST: Crear una nueva copia de un libro existente
     @PostMapping("/newcopy/{bookId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Copy_book> crearCopia(@PathVariable int bookId) {
         Book libro = servicioBook.buscarBook(bookId).orElse(null);
         if (libro == null) {
@@ -65,6 +66,7 @@ public class BookController {
 
     // GET: Obtener copias disponibles por título del libro
     @GetMapping("/copy/{title}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<Copy_book>> buscarCopiasPorTitulo(@PathVariable String title) {
         List<Book> libros = servicioBook.buscarPorTitulo(title);
         if (libros.isEmpty()) {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class FineController {
     // GET: Buscar multas por email
     // Falta agregar para cuando se tenga token que Si es lector, solo puede ver sus propias multas
     @GetMapping("/find/{email}")
+    @PreAuthorize("hasAuthority('LECTOR') or hasAuthority('ADMIN')")
     public ResponseEntity<List<Fine>> obtenerMultasPorEmail(@PathVariable String email) {
         List<Fine> multas = servicioFine.buscarMultasPorUsuario(email);
         if (multas.isEmpty()) {

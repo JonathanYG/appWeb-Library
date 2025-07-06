@@ -10,6 +10,7 @@ import cl.ucm.libraryback.repository.UserRepository;
 import cl.ucm.libraryback.repository.UserRolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,47 +27,10 @@ public class AuthController {
 
     @Autowired
     private UserRolRepository userRolRepository;
- /*
-    //  Registro de usuario
-    @PostMapping("/register")
-    public ResponseEntity<?> registrarUsuario(@RequestBody RegisterRequest request) {
-        if (userRepository.existsById(request.getEmail())) {
-            return ResponseEntity.badRequest().body("El usuario ya existe");
-        }
 
-        // Buscar o crear rol
-        Rol rol = rolRepository.findByName(request.getRol());
-        if (rol == null) {
-            rol = new Rol();
-            rol.setName(request.getRol());
-            rolRepository.save(rol);
-        }
-
-        // Crear usuario
-        UserEntity usuario = new UserEntity();
-        usuario.setEmail(request.getEmail());
-        usuario.setName(request.getName());
-        usuario.setLastName(request.getLastName());
-        usuario.setPassword(request.getPassword());
-        usuario.setState(true);
-        userRepository.save(usuario);
-
-        // Crear relación UserRol
-        User_rol ur = new User_rol();
-        ur.setUserFK(request.getEmail());
-        ur.setRolFK(rol.getId());
-        userRolRepository.save(ur);
-
-        return ResponseEntity.ok("Usuario registrado con éxito");
-    }
-<<<<<<< HEAD
-
-    // Obtener todos los usuarios con rol LECTOR
-=======
-*/
     // Obtener todos los usuarios
-//>>>>>>> 20f7384 (create login and demas)
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UsuarioConRol>> obtenerLectoresConRol() {
         List<UserEntity> usuarios = userRepository.findAll();
 
@@ -96,6 +60,7 @@ public class AuthController {
 
     // Buscar usuario por email
     @GetMapping("/find/{email}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> buscarPorEmail(@PathVariable String email) {
         return userRepository.findById(email).map(user -> {
             User_rol userRol = userRolRepository.findByUserFK(user.getEmail());
@@ -121,6 +86,7 @@ public class AuthController {
 
     // Cambiar estado activo/bloqueado de un usuario
     @PostMapping("/toggle-state/{email}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> cambiarEstado(@PathVariable String email) {
         return userRepository.findById(email).map(usuario -> {
             boolean nuevoEstado = !usuario.isState(); // invierte el estado

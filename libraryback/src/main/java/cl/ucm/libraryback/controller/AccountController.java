@@ -33,7 +33,7 @@ public class AccountController {
     private JwtUtil jwtUtil;
 
 
-    @PostMapping(path = "/create")
+    @PostMapping(path = "/register")
     public ResponseEntity<?> createUser(@RequestBody RegisterRequest dto) {
         Optional<RegisterRequest> optional = service.createUser(dto);
         if (optional.isPresent()) {

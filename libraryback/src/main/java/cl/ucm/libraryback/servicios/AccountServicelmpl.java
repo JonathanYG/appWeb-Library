@@ -39,6 +39,7 @@ public class AccountServicelmpl implements AccountService {
         user.setName(dto.getName());
         user.setLastName(dto.getLastName());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setState(true);
         userRepository.save(user);
 
         // 4. Relación usuario-rol
