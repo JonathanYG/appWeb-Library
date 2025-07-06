@@ -221,7 +221,7 @@ export function Header() {
   const transformMultas = Array.isArray(multasData)
   ? multasData.map(item => ({
       ...item,
-      state: item.state ? "Activo" : "Inactivo",
+      state: item.state ? "Pagada" : "Activa",
     }))
   : [];
 

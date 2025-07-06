@@ -94,6 +94,7 @@ export function Books() {
             setShowBookModal(false);
             setNewBook({ author: "", title: "", type: "", image64: null });
             fetchBooksWithCopies();
+            window.location.reload();
         } catch (error) {
             console.error("Error al crear libro:", error);
             toast.error("No se pudo crear el libro.", { theme: "dark", transition: Bounce });
@@ -116,6 +117,7 @@ export function Books() {
             toast.success("Copia registrada exitosamente.", { theme: "dark", transition: Bounce });
             setShowCopyModal(false);
             fetchBooksWithCopies();
+            window.location.reload();
         } catch (error) {
             console.error("Error al crear copia:", error);
             toast.error("No se pudo crear la copia.", { theme: "dark", transition: Bounce });
