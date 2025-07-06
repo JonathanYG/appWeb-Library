@@ -74,7 +74,7 @@ public class ServicioBookingImpl implements ServicioBooking {
             multa.setUserFk(email);
             multa.setAmount(multaTotal);
             multa.setDescription("Devolución tardía: " + libro.getTitle());
-            multa.setState(true);
+            multa.setState(false);
             fineRepository.save(multa);
 
             lector.setState(false); // usuario multado
