@@ -65,7 +65,7 @@ public class AuthController {
 =======
 */
     // Obtener todos los usuarios
->>>>>>> 20f7384 (create login and demas)
+//>>>>>>> 20f7384 (create login and demas)
     @GetMapping("/all")
     public ResponseEntity<List<UsuarioConRol>> obtenerLectoresConRol() {
         List<UserEntity> usuarios = userRepository.findAll();
