@@ -16,46 +16,39 @@ import java.util.Optional;
 @Service
 public class AccountServicelmpl implements AccountService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserRolRepository userRolRepository;
-    @Autowired
-    private RolRepository rolRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private UserRepository userRepository;
+    @Autowired private UserRolRepository userRolRepository;
+    @Autowired private RolRepository rolRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @Override
-    public Optional<RegisterRequest> createUser(RegisterRequest dto){
-        Optional<UserEntity> optionalUserEntity =  userRepository.findById(dto.getEmail());
-        Optional<Rol> optionalRol = rolRepository.findById(Integer.valueOf(dto.getRol()));
+    public Optional<RegisterRequest> createUser(RegisterRequest dto) {
 
-            if (optionalUserEntity.isPresent()){
-                return Optional.empty();
-            }
-            if(optionalRol.isEmpty()){
-                return Optional.empty();
-            }
+        // 1. ¿usuario ya existe?
+        if (userRepository.existsById(dto.getEmail())) {
+            return Optional.empty();              // devolverá 404 en el controlador
+        }
 
+        // 2. Rol por defecto "LECTOR"
+        Rol rol = rolRepository.findByName("LECTOR")
+                .orElseThrow(() -> new IllegalStateException("Rol 'LECTOR' no existe"));
 
-            UserEntity user = new UserEntity();
-            user.setEmail(dto.getEmail());
-            user.setName(dto.getName());
-            user.setLastName(dto.getLastName());
-            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        // 3. Guardar usuario
+        UserEntity user = new UserEntity();
+        user.setEmail(dto.getEmail());
+        user.setName(dto.getName());
+        user.setLastName(dto.getLastName());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        userRepository.save(user);
 
+        // 4. Relación usuario-rol
+        User_rol link = new User_rol();
+        link.setUserFK(user.getEmail());
+        link.setRolFK(rol.getId());
+        userRolRepository.save(link);
 
-            User_rol  userRol = new User_rol();
-            userRol.setRolFK(Integer.parseInt(dto.getRol()));
-            userRol.setUserFK(dto.getEmail());
-            userRolRepository.save(userRol);
-
-            userRepository.save(user);
-
-
-
-
-        dto.setPassword(user.getPassword());
-        return Optional.of(dto);
+        // 5. No devuelvas password
+        dto.setPassword(null);
+        return Optional.of(dto);                  // el controlador responderá 200
     }
 }

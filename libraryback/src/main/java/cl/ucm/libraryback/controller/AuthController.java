@@ -26,7 +26,7 @@ public class AuthController {
 
     @Autowired
     private UserRolRepository userRolRepository;
-
+ /*
     //  Registro de usuario
     @PostMapping("/register")
     public ResponseEntity<?> registrarUsuario(@RequestBody RegisterRequest request) {
@@ -59,8 +59,13 @@ public class AuthController {
 
         return ResponseEntity.ok("Usuario registrado con éxito");
     }
+<<<<<<< HEAD
 
     // Obtener todos los usuarios con rol LECTOR
+=======
+*/
+    // Obtener todos los usuarios
+>>>>>>> 20f7384 (create login and demas)
     @GetMapping("/all")
     public ResponseEntity<List<UsuarioConRol>> obtenerLectoresConRol() {
         List<UserEntity> usuarios = userRepository.findAll();

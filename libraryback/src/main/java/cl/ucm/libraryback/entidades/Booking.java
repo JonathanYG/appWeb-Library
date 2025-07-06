@@ -17,10 +17,10 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_booking")
-    private int id;
+    private Integer id;
 
     @Column(name = "copybook_fk")
-    private int copybookFk;
+    private Integer copybookFk;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "copybook_fk", referencedColumnName = "id_copybook", insertable = false, updatable = false)

@@ -12,7 +12,7 @@ public class Copy_book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_copybook")
-    private int id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "book_fk", referencedColumnName = "id_book", nullable = false)

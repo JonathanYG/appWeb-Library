@@ -14,10 +14,10 @@ public class User_rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_rol_user")
-    private int id;
+    private Integer id;
 
     @Column(name = "rol_fk")
-    private int rolFK;
+    private Integer rolFK;
 
     @Column(name = "user_fk")
     private String userFK;

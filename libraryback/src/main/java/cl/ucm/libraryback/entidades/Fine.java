@@ -14,9 +14,9 @@ public class Fine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_fine")
-    private int id;
+    private Integer id;
 
-    private int amount;
+    private Integer amount;
 
     private String description;
 

@@ -32,29 +32,11 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsConfigurationSource))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ==== Rutas públicas (sin token) ====
+                        .requestMatchers("/api/auth/**").permitAll()          // POST, GET, etc.
+                        .requestMatchers(HttpMethod.GET, "/api/book/all/**").permitAll()
 
-                        /* =========== 1. PUBLIC  =========== */
-                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()   // /register, /login
-                        .requestMatchers(HttpMethod.GET , "/api/book/all/**").permitAll()
-
-                        /* =========== 2. SOLO ADMIN  =========== */
-                        // Libros
-                        .requestMatchers(HttpMethod.POST, "/api/book/new", "/api/book/newcopy").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET , "/api/book/find/**", "/api/book/copy/**").hasRole("ADMIN")
-                        // Reservas / Devoluciones
-                        .requestMatchers(HttpMethod.POST, "/api/booking/new",
-                                "/api/booking/return/**").hasRole("ADMIN")
-                        // Lectores, multas, estados
-                        .requestMatchers(HttpMethod.GET , "/api/reader/find/**",
-                                "/api/fine/find/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/reader/state/**").hasRole("ADMIN")
-
-                        /* =========== 3. ADMIN  o  LECTOR =========== */
-                        // El mismo end-point lo usan ambos perfiles
-                        .requestMatchers(HttpMethod.GET , "/api/booking/find/**").hasAnyRole("ADMIN", "LECTOR")
-                        .requestMatchers(HttpMethod.GET , "/api/fine/find/**").hasAnyRole("ADMIN", "LECTOR")
-
-                        /* =========== 4. RESTO =========== */
+                        // ==== Resto debe ir autenticado ====
                         .anyRequest().authenticated()
                 );
 
