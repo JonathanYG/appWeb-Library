@@ -104,6 +104,7 @@ export function Readers() {
             await toggleUserState(reader.email);
             fetchAllUsers();
             toast.success(`Estado del lector ${reader.email} modificado`, { theme: 'dark', transition: Bounce });
+            window.location.reload();
         } catch (error) {
             console.error("Error al cambiar el estado del lector:", error);
             toast.error("No se pudo cambiar el estado del lector", { theme: 'dark', transition: Bounce });

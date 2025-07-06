@@ -87,7 +87,9 @@ export function Header() {
     const fetchUsers = async () => {
       try {
         const res = await getAllUsers();
-        const options = res.data.map(u => ({
+        const options = res.data
+        .filter(u => u.state === true)
+        .map(u => ({
           value: u.email,
           label: u.email
         }));
