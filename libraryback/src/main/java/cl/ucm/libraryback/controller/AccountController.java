@@ -43,15 +43,19 @@ public class AccountController {
     }
 
 
-    @PostMapping(path = "/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto dto) {
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
-        Authentication authentication = authenticationManager.authenticate(login);
-        log.info("Auth principal: {}", authentication.getPrincipal());
-        log.info("Authorities: {}", authentication.getAuthorities().stream().toList().toString());
-        String jwt = jwtUtil.create(dto.getEmail(), dto.getPassword());
-        Map<String, String> map = new HashMap<>();
-        map.put("token", jwt);
-        return ResponseEntity.ok(map);
+
+        // autentica con e-mail y contraseña
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+
+        // authorities = [ROLE_ADMIN, ROLE_LECTOR, …]
+        String jwt = jwtUtil.create(
+                dto.getEmail(),                       // sujeto
+                authentication.getAuthorities());     // ← roles
+
+        return ResponseEntity.ok(Map.of("token", jwt));
     }
+
 }
