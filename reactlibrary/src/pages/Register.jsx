@@ -53,12 +53,13 @@ export function Register() {
                 name,
                 lastName,
                 password,
-                rol: formData.role.toUpperCase(),
+                rol: (formData.role || "").toUpperCase()
             };
     
             await registerUser(payload);
             toast.success("Registro exitoso.", { theme: 'dark', transition: Bounce });
             navigate('/login');
+            window.location.reload();
         } catch (error) {
             console.error(error);
             toast.error("Error al registrarse.", { theme: 'dark', transition: Bounce });

@@ -10,23 +10,27 @@ const BookingApi = axios.create({
   baseURL: `${URL_BOOKING}/api/booking`,
 });
 
-// const token = localStorage.getItem("token");
-// const headers = { Authorization: `Bearer ${token}` };
+// Función auxiliar para obtener token al momento de hacer la solicitud
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return { Authorization: `Bearer ${token}` };
+};
 
 // Registrar un nuevo préstamo
 export const createBooking = (booking) =>
-  BookingApi.post("/new", booking);
+  BookingApi.post("/new", booking, { headers: getAuthHeaders() });
 
 // Registrar una devolución de préstamo
 export const returnBooking = (idBooking, email) =>
   BookingApi.post(`/return/${idBooking}`, null, {
+    headers: getAuthHeaders(),
     params: { email },
   });
 
 // Buscar préstamos por email
 export const findBookingsByEmail = (email) =>
-  BookingApi.get(`/find/${email}`);
+  BookingApi.get(`/find/${email}`, { headers: getAuthHeaders() });
 
 // Obtener todos los préstamos
 export const getAllBookings = () =>
-  BookingApi.get("/all");
+  BookingApi.get("/all", { headers: getAuthHeaders() });

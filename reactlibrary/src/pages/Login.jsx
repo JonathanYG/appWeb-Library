@@ -3,10 +3,11 @@ import { StylesLogin } from '../styles/StylesLogin.jsx';
 import { Bounce, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import { CustomButton } from '../components/CustomButton.jsx'
 import image from '../assets/imagenWelcome.webp'
 import { useUser } from '../context/UserContext.jsx';
-// import { loginRequest } from '../api/auth.js';
+import { loginRequest } from '../api/AuthApi.js';
 
 export function Login() {
   const navigate = useNavigate();
@@ -31,57 +32,39 @@ export function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const emailRegex  = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         
     if (email.trim() === '' || contrasena.trim() === '') {
-      toast.warn('Por favor completa todos los campos.', {
-        theme: "dark",
-        transition: Bounce,
-      });
+      toast.warn('Por favor completa todos los campos.', { theme: "dark", transition: Bounce });
       return;
     }
-
-    if (!emailRegex .test(email)) {
-      toast.error('Por favor ingresa un correo válido de Gmail (ejemplo@gmail.com).', {
-        theme: "dark",
-        transition: Bounce,
-      });
+  
+    if (!emailRegex.test(email)) {
+      toast.error('Por favor ingresa un correo válido.', { theme: "dark", transition: Bounce });
       return;
     }
-
+  
     try {
-      // const res = await loginRequest({ email, contrasena });
-      // loginUsuario({
-      //   token: res.data.token,
-      //   usuario: res.data.usuario  // suponiendo que venga así
-      // });
-
-      // Simulación de login sin backend
-      loginUsuario({
-        token: "token-de-prueba-123",
-        usuario: {
-          email: "lector@ucm.cl",
-          name: "Administrador",
-          lastName: "Sistema",
-          state: true,
-          rol: "ADMIN",
-        }
-      });
-
-      toast.success('Inicio de sesión exitoso', {
-        theme: "dark",
-        transition: Bounce,
-      });
-
+      const res = await loginRequest({ email, password: contrasena });
+      const token = res.data.token;
+  
+      // Decodificar el token JWT
+      const decoded = jwtDecode(token);
+      const usuario = {
+        email: decoded.sub,
+        rol: decoded.roles[0],
+      };
+  
+      loginUsuario({ token, usuario });
+  
+      toast.success('Inicio de sesión exitoso', { theme: "dark", transition: Bounce });
       navigate('/home');
-    }
-    catch (error) {
+  
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
       const mensaje = error.response?.data?.mensaje || 'Error al iniciar sesión';
-      toast.error(mensaje, {
-        theme: "dark",
-        transition: Bounce,
-      });
+      toast.error(mensaje, { theme: "dark", transition: Bounce });
     }
   };
 

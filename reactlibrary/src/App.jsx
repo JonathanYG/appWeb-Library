@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { ToastContainer, Bounce } from 'react-toastify';
@@ -18,20 +17,34 @@ import { Returns } from './pages/Returns.jsx';
 import { Books } from './pages/Books.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
+// Componente para rutas protegidas
+import PrivateRoute from './components/PrivateRoute.jsx';
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
+      // Rutas públicas
       { path: '/', element: <Navigate to="/home" replace /> },
       { path: '/home', element: <Home /> },
       { path: '/about', element: <About /> },
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
-      { path: '/readers', element: <Readers /> },
-      { path: '/returns', element: <Returns /> },
-      { path: '/books', element: <Books /> },
+      // Rutas privadas
+      {
+        path: '/readers',
+        element: <PrivateRoute element={<Readers />} allowedRoles={['ROLE_ADMIN']} />
+      },
+      {
+        path: '/returns',
+        element: <PrivateRoute element={<Returns />} allowedRoles={['ROLE_ADMIN']} />
+      },
+      {
+        path: '/books',
+        element: <PrivateRoute element={<Books />} allowedRoles={['ROLE_ADMIN']} />
+      },
     ]
   }
 ]);

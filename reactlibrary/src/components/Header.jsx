@@ -167,7 +167,7 @@ export function Header() {
         </>
       );
     }
-    if (rol === 'ADMIN') {
+    if (rol === 'ROLE_ADMIN') {
       return (
         <>
           {renderBtn("Home", "/home")}

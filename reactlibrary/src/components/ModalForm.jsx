@@ -25,8 +25,8 @@ export default function ModalForm({
 
   useEffect(() => {
     if (isOpen) {
-      setImagePreview(null); // limpia preview al abrir modal
-      setShowConfirm(false); // asegura que no quede abierto
+      setImagePreview(null);
+      setShowConfirm(false);
     }
   }, [isOpen]);
 
@@ -85,10 +85,10 @@ export default function ModalForm({
                             const file = e.target.files[0];
                             if (file) {
                               const previewURL = URL.createObjectURL(file);
-                              setImagePreview(previewURL); // para mostrar la vista previa
+                              setImagePreview(previewURL);
                               const reader = new FileReader();
                               reader.onloadend = () => {
-                                const base64String = reader.result.split(',')[1]; // quitar prefijo data:image/png;base64,
+                                const base64String = reader.result.split(',')[1];
                                 if (input.onChange) {
                                   input.onChange({ target: { value: base64String } });
                                 }
@@ -183,7 +183,7 @@ export default function ModalForm({
                               setImagePreview(previewURL);
                               const reader = new FileReader();
                               reader.onloadend = () => {
-                                const base64String = reader.result.split(',')[1]; // quitar prefijo data:image/png;base64,
+                                const base64String = reader.result.split(',')[1];
                                 if (input.onChange) {
                                   input.onChange({ target: { value: base64String } });
                                 }

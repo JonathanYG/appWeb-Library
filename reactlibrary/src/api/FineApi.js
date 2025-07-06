@@ -10,9 +10,12 @@ const FineApi = axios.create({
   baseURL: `${URL_FINE}/api/fine`,
 });
 
-// const token = localStorage.getItem("token");
-// const headers = { Authorization: `Bearer ${token}` };
+// Función auxiliar para obtener token al momento de hacer la solicitud
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return { Authorization: `Bearer ${token}` };
+};
 
 // Obtener multas por email
 export const getFinesByEmail = (email) =>
-  FineApi.get(`/find/${email}`);
+  FineApi.get(`/find/${email}`, { headers: getAuthHeaders() });

@@ -25,8 +25,8 @@ export function Returns() {
             setAllBookings(res.data);
             setFilteredBookings(data);
         } catch (error) {
-            console.error("Error al obtener préstamos:", error);
-            toast.error("No se pudieron cargar los préstamos.", { theme: "dark", transition: Bounce });
+            console.error("Error al obtener devoluciones:", error);
+            toast.error("No se pudieron cargar los devoluciones.", { theme: "dark", transition: Bounce });
         }
     };
 
@@ -40,7 +40,7 @@ export function Returns() {
             const filtered = res.data.filter(b => b.estado !== "Devuelto");
             setFilteredBookings(filtered);
         } catch (error) {
-            console.error("Error al buscar préstamos:", error);
+            console.error("Error al buscar devoluciones:", error);
             toast.error("No se encontraron resultados.", { theme: "dark", transition: Bounce });
         }
     };

@@ -10,21 +10,28 @@ const AuthApi = axios.create({
   baseURL: `${URL_AUTH}/api/auth`,
 });
 
-// const token = localStorage.getItem("token");
-// const headers = { Authorization: `Bearer ${token}` };
+// Función auxiliar para obtener token al momento de hacer la solicitud
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return { Authorization: `Bearer ${token}` };
+};
 
-// Registrar nuevo usuario
+// Registrar nuevo usuario (público)
 export const registerUser = (userData) =>
   AuthApi.post("/register", userData);
 
-// Obtener todos los usuarios con su rol
+// Iniciar sesión y obtener token (público)
+export const loginRequest = (loginData) =>
+  AuthApi.post("/login", loginData);
+
+// Obtener todos los usuarios con su rol (privado)
 export const getAllUsers = () =>
-  AuthApi.get("/all");
+  AuthApi.get("/all", { headers: getAuthHeaders() });
 
-// Buscar usuario por email
+// Buscar usuario por email (privado)
 export const getUserByEmail = (email) =>
-  AuthApi.get(`/find/${email}`);
+  AuthApi.get(`/find/${email}`, { headers: getAuthHeaders() });
 
-// Cambiar estado activo/bloqueado de un usuario
+// Cambiar estado activo/bloqueado (privado)
 export const toggleUserState = (email) =>
-  AuthApi.post(`/toggle-state/${email}`);
+  AuthApi.post(`/toggle-state/${email}`, null, { headers: getAuthHeaders() });
