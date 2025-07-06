@@ -19,7 +19,6 @@ public class FineController {
     private ServicioFine servicioFine;
 
     // GET: Buscar multas por email
-    // Falta agregar para cuando se tenga token que Si es lector, solo puede ver sus propias multas
     @GetMapping("/find/{email}")
     @PreAuthorize("hasAuthority('LECTOR') or hasAuthority('ADMIN')")
     public ResponseEntity<List<Fine>> obtenerMultasPorEmail(@PathVariable String email) {
